@@ -84,10 +84,10 @@ class LibvirtInspector(object):
             if state == libvirt.VIR_DOMAIN_RUNNING:
                 result += [
                     self.inspect_cpus(domain),
-                    self.inspect_vnics(domain),
-                    self.inspect_disks(domain),
+                    list(self.inspect_vnics(domain)),
+                    list(self.inspect_disks(domain)),
                     self.inspect_memory_usage(domain),
-                    self.inspect_disk_info(domain),
+                    list(self.inspect_disk_info(domain)),
                     self.inspect_memory_resident(domain),
                 ]
             results[domain.name()] = result
