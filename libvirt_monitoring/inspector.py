@@ -68,11 +68,11 @@ class LibvirtInspector(object):
         all_domains = self.connection.listAllDomains()
         # Format e.x:
         # resutls = {
-        #   'instance-00000315' : [
-        #       StateStats(state='running'),
-        #       CPUStats(number=100, time=1900),
-        #       ...
-        #   ]
+        #   'instance-00000315' : {
+        #          'statestats' : StateStats(state=1),
+        #          'cpustats' : CPUStats(number=1, time=100)
+        #           ...
+        #   }
         # }
         results = {}
         for domain in all_domains:
@@ -84,8 +84,7 @@ class LibvirtInspector(object):
             if state == libvirt.VIR_DOMAIN_RUNNING:
                 result['cpustats'] = self.inspect_cpus(domain)
                 for vnic in self.inspect_vnics(domain):
-                    vnic_name = 'interface' + vnic[0].name
-                    result[vnic_name + '_stats'] = vnic[1]
+                    result['interfacestats_' + vnic[0].name] = vnic[1]
                 for disk in self.inspect_disks(domain):
                     result['diskstats_' + disk[0].device] = disk[1]
                 for disk in self.inspect_disk_info(domain):
