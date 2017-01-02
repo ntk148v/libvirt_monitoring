@@ -77,19 +77,20 @@ class LibvirtInspector(object):
         results = {}
         for domain in all_domains:
             state = domain.info()[0]
-            result = []
-            result.append(self.inspect_state(domain))
+            result = {}
+            result['statestats'] = self.inspect_state(domain)
 
             # Only get metrics info of running domain.
             if state == libvirt.VIR_DOMAIN_RUNNING:
-                result += [
-                    self.inspect_cpus(domain),
-                    list(self.inspect_vnics(domain)),
-                    list(self.inspect_disks(domain)),
-                    self.inspect_memory_usage(domain),
-                    list(self.inspect_disk_info(domain)),
-                    self.inspect_memory_resident(domain),
-                ]
+                result['cpustats'] = self.inspect_cpus(domain)
+                result['interface'] = list(self.inspect_vnics(domain))[0]
+                result['interfacestats'] = list(self.inspect_vnics(domain))[1]
+                result['disk'] = list(self.inspect_disks(domain))[0]
+                result['diskstats'] = list(self.inspect_disks(domain))[1]
+                result['diskinfo'] = list(self.inspect_disk_info(domain))[1]
+                result['memoryusagestats'] = self.inspect_memory_usage(domain)
+                result['memoryresidentstats'] = \
+                    self.inspect_memory_resident(domain)
             results[domain.name()] = result
         return results
 
