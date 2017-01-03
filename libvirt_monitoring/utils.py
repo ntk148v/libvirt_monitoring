@@ -1,7 +1,7 @@
 from six.moves import configparser
 
 
-def ini_file_loader(filename='config.ini'):
+def ini_file_loader(filename='libvirt_monitoring/config.ini'):
     """ Load configuration from ini file"""
     parser = configparser.SafeConfigParser()
     parser.read([filename])
