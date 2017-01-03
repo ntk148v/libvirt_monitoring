@@ -132,7 +132,7 @@ DiskInfo = collections.namedtuple('DiskInfo',
 # name: zabbix item name.
 # value: zabbix item value.
 Item = collections.namedtuple('Item',
-                              ['key, name, value'])
+                              ['key', 'name', 'value'])
 
 # Exception types
 #
