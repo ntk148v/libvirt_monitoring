@@ -4,7 +4,7 @@ from six.moves import configparser
 
 def ini_file_loader(filename=None):
     """ Load configuration from ini file"""
-    if filename = None:
+    if not filename:
     	dir_path = os.path.dirname(os.path.realpath(__file__))
     	filename = dir_path + '/config.ini'
     parser = configparser.SafeConfigParser()
