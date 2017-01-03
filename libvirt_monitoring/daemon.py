@@ -142,7 +142,7 @@ class Daemon:
         """
 
 
-class AgentDaemon(object):
+class AgentDaemon(Daemon):
 
     """
     A daemon that runs the agent in background
