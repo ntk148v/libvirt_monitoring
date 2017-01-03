@@ -126,6 +126,13 @@ DiskInfo = collections.namedtuple('DiskInfo',
                                    'allocation',
                                    'physical'])
 
+# Named tuple representing zabbix item.
+# 
+# key: zabbix item key.
+# name: zabbix item name.
+# value: zabbix item value.
+Item = collections.namedtuple('Item',
+                              ['key, name, value'])
 
 # Exception types
 #
