@@ -37,7 +37,7 @@ class LibvirtAgent(object):
     def create_item(self, item):
         get_params = {
             'output': 'extend',
-            'hostids': self.config['zabbix-agent_hostid'],
+            'hostids': self.config['zabbix_agent-hostid'],
             'search': {
                 'key_': item.key
             }
@@ -49,7 +49,7 @@ class LibvirtAgent(object):
             create_params = {
                 'name': item.name,
                 'key_': item.key,
-                'hostid': self.config['zabbix-agent_hostid'],
+                'hostid': self.config['zabbix_agent-hostid'],
                 'value_type': 3,
                 'type': 2,
             }
