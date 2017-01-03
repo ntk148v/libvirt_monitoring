@@ -62,3 +62,6 @@ target/
 
 # pyenv python configuration file
 .python-version
+
+# Ignore config.ini file
+libvirt_monitoring/config.ini
