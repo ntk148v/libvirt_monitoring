@@ -19,7 +19,7 @@ class LibvirtAgent(object):
                               user=self.config['zabbix_server-user'],
                               password=self.config['zabbix_server-password'])
 
-    def get_metrics(self):
+    def get_and_send_metrics(self):
         all_metrics = self.inspector.get_vm_metrics()
         for vm, vm_metrics in all_metrics.items():
             for metric_key, metric_value in vm_metrics.items():
@@ -32,7 +32,7 @@ class LibvirtAgent(object):
                     item_value = getattr(metric_value,  f)
                     self.create_item(base.Item(key=item_key,
                                                name=item_name,
-                                               value=item.value))
+                                               value=item_value))
 
     def create_item(self, item):
         get_params = {
@@ -57,9 +57,8 @@ class LibvirtAgent(object):
             self.zapi.do_request('item.create', create_params)
             LOG.info('Created new item with key {}' . format(item.key))
 
-        self.send_item(item)
-
     def send_item(self, item):
+        self.create_item(item)
         metrics = [ZabbixMetric(self.config['zabbix_agent-hostname'],
                                 item.key, item.value)]
         try:
