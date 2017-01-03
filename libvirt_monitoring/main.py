@@ -5,7 +5,7 @@ from libvirt_monitoring import daemon
 
 def main():
     agent_daemon = daemon.AgentDaemon('/tmp/agent-daemon.pid')
-    if len(sys.argv == 2):
+    if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
             agent_daemon.start()
         if 'stop' == sys.argv[1]:
