@@ -57,6 +57,8 @@ class LibvirtAgent(object):
             self.zapi.do_request('item.create', create_params)
             LOG.info('Created new item with key {}' . format(item.key))
 
+        self.send_item(item)
+
     def send_item(self, item):
         metrics = [ZabbixMetric(self.config['zabbix_agent-hostname'],
                                 item.key, item.value)]
