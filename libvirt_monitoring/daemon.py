@@ -150,4 +150,4 @@ class AgentDaemon(object):
 
     def run(self):
         libvirt_agent = agent.LibvirtAgent()
-        libvirt_agent.get_and_send_metrics()
+        libvirt_agent.run()

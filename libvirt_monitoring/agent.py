@@ -19,6 +19,10 @@ class LibvirtAgent(object):
                               user=self.config['zabbix_server-user'],
                               password=self.config['zabbix_server-password'])
 
+    def run(self):
+        while True:
+            self.get_and_send_metrics()
+
     def get_and_send_metrics(self):
         all_metrics = self.inspector.get_vm_metrics()
         for vm, vm_metrics in all_metrics.items():
