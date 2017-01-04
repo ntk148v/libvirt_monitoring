@@ -36,7 +36,7 @@ class LibvirtAgent(object):
                                                         metric_key.title(),
                                                         f.title())
                     item_value = getattr(metric_value,  f)
-                    self.create_item(base.Item(key=item_key,
+                    self.send_item(base.Item(key=item_key,
                                                name=item_name,
                                                value=item_value))
 
