@@ -69,6 +69,6 @@ class LibvirtAgent(object):
                                 item.key, item.value)]
         try:
             result = self.zsender.send(metrics)
-            LOG.info('Send metric {} : {}' . format(item_name, result))
+            LOG.info('Send metric {} : {}' . format(item.name, result))
         except Exception as e:
             LOG.error('Error when send metric to Zabbix Server - {}' . format(e))
