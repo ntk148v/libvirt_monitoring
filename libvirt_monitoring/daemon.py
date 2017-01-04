@@ -59,10 +59,6 @@ class Daemon:
                              (e.errno, e.strerror))
             sys.exit(1)
 
-        # redirect standard file descriptors
-        sys.stdout.flush()
-        sys.stderr.flush()
-
         # write pidfile
         atexit.register(self.delpid)
         pid = str(os.getpid())
