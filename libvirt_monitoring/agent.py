@@ -1,4 +1,5 @@
 import logging
+import time
 from pyzabbix import ZabbixAPI, ZabbixMetric, ZabbixSender
 
 from libvirt_monitoring import base
@@ -22,6 +23,7 @@ class LibvirtAgent(object):
     def run(self):
         while True:
             self.get_and_send_metrics()
+            time.sleep(1000)
 
     def get_and_send_metrics(self):
         all_metrics = self.inspector.get_vm_metrics()
@@ -66,7 +68,7 @@ class LibvirtAgent(object):
         metrics = [ZabbixMetric(self.config['zabbix_agent-hostname'],
                                 item.key, item.value)]
         try:
-            self.zsender.send(metrics)
-            LOG.info('Send metric {} successfully!' . format(item_name))
+            result = self.zsender.send(metrics)
+            LOG.info('Send metric {} : {}' . format(item_name, result))
         except Exception as e:
             LOG.error('Error when send metric to Zabbix Server - {}' . e)

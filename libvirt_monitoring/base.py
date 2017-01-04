@@ -127,7 +127,7 @@ DiskInfo = collections.namedtuple('DiskInfo',
                                    'physical'])
 
 # Named tuple representing zabbix item.
-# 
+#
 # key: zabbix item key.
 # name: zabbix item name.
 # value: zabbix item value.
@@ -136,6 +136,8 @@ Item = collections.namedtuple('Item',
 
 # Exception types
 #
+
+
 class InspectorException(Exception):
 
     def __init__(self, message=None):
@@ -144,3 +146,20 @@ class InspectorException(Exception):
 
 class NoDataException(InspectorException):
     pass
+
+
+class AgentLogger(object):
+
+    """
+    Fake file-like stream object that redirects writes
+    to a logger instance.
+    """
+
+    def __init__(self, logger, level):
+        self.logger = logger
+        self.level = level
+
+    def write(self, message):
+        # Only log if there is a message (not just a new line)
+        if message.rstrip() != "":
+            self.logger.log(self.level, message.rstrip())

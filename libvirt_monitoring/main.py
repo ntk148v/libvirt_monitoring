@@ -1,9 +1,18 @@
+import logging
 import sys
 
 from libvirt_monitoring import daemon
+from libvirt_monitoring import utils
+
+
+LOG = logging.getLogger(__name__)
 
 
 def main():
+    # Load logging config.
+    utils.logging_config_loader()
+    # Init AgentDaemon.
+    LOG.info('Initiliaze AgentDaemon')
     agent_daemon = daemon.AgentDaemon('/tmp/agent-daemon.pid')
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:

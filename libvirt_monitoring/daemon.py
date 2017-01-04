@@ -8,6 +8,9 @@ from signal import SIGTERM
 from libvirt_monitoring import agent
 
 
+LOG = logging.getLogger(__name__)
+
+
 class Daemon:
 
     """
@@ -18,12 +21,10 @@ class Daemon:
     articles/2007/02/a_simple_unix_linux_daemon_in_python/
     """
 
-    def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null',
-                 stderr='/dev/null'):
-        self.stdin = stdin
-        self.stdout = stdout
-        self.stderr = stderr
+    def __init__(self, pidfile):
         self.pidfile = pidfile
+        sys.stdout = base.AgentLogger(LOG, logging.INFO)
+        sys.stderr = base.AgentLogger(LOG, logging.ERROR)
 
     def daemonize(self):
         """
@@ -60,12 +61,6 @@ class Daemon:
         # redirect standard file descriptors
         sys.stdout.flush()
         sys.stderr.flush()
-        si = file(self.stdin, 'r')
-        so = file(self.stdout, 'a+')
-        se = file(self.stderr, 'a+', 0)
-        os.dup2(si.fileno(), sys.stdin.fileno())
-        os.dup2(so.fileno(), sys.stdout.fileno())
-        os.dup2(se.fileno(), sys.stderr.fileno())
 
         # write pidfile
         atexit.register(self.delpid)
