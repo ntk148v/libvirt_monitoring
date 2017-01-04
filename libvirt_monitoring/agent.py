@@ -71,4 +71,4 @@ class LibvirtAgent(object):
             result = self.zsender.send(metrics)
             LOG.info('Send metric {} : {}' . format(item_name, result))
         except Exception as e:
-            LOG.error('Error when send metric to Zabbix Server - {}' . e)
+            LOG.error('Error when send metric to Zabbix Server - {}' . format(e))
