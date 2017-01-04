@@ -6,6 +6,7 @@ import sys
 from signal import SIGTERM
 
 from libvirt_monitoring import agent
+from libvirt_monitoring import base
 
 
 LOG = logging.getLogger(__name__)
