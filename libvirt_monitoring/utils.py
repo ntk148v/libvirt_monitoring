@@ -23,7 +23,7 @@ def ini_file_loader(filename=None):
 
 
 def logging_config_loader(logfile='/var/log/libvirt_agent.log'):
-    logini = DIR_PATH + 'logging.ini'
+    logini = DIR_PATH + '/logging.ini'
     logging.config.fileConfig(logini,
                        defaults={'logfile': logfile},
                        disable_existing_loggers=False)
