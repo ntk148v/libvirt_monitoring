@@ -146,10 +146,15 @@ class LibvirtInspector(object):
              for target in tree.findall('devices/disk/target')]):
             disk = base.Disk(device=device)
             block_stats = domain.blockStats(device)
+            block_latency_stats = domain.blockStatsFlags(device)
             stats = base.DiskStats(read_requests=block_stats[0],
                                    read_bytes=block_stats[1],
                                    write_requests=block_stats[2],
                                    write_bytes=block_stats[3],
+                                   write_total_times=block_latency_stats[
+                                       'wr_total_times'] / 1E6,
+                                   read_total_times=block_latency_stats[
+                                       'rd_total_times'] / 1E6,
                                    errors=block_stats[4])
             yield (disk, stats)
 
