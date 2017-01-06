@@ -14,12 +14,6 @@ StateStats = collections.namedtuple('StateStats', ['state'])
 #
 CPUStats = collections.namedtuple('CPUStats', ['number', 'time'])
 
-# Named tuple representing CPU Utilization statistics.
-#
-# util: CPU utilization in percentage
-#
-CPUUtilStats = collections.namedtuple('CPUUtilStats', ['util'])
-
 # Named tuple representing Memory usage statistics.
 #
 # usage: Amount of memory used
@@ -57,16 +51,6 @@ InterfaceStats = collections.namedtuple('InterfaceStats',
                                         ['rx_bytes', 'rx_packets',
                                          'tx_bytes', 'tx_packets'])
 
-
-# Named tuple representing vNIC rate statistics.
-#
-# rx_bytes_rate: rate of received bytes
-# tx_bytes_rate: rate of transmitted bytes
-#
-InterfaceRateStats = collections.namedtuple('InterfaceRateStats',
-                                            ['rx_bytes_rate', 'tx_bytes_rate'])
-
-
 # Named tuple representing disks.
 #
 # device: the device name for the disk
@@ -80,40 +64,15 @@ Disk = collections.namedtuple('Disk', ['device'])
 # read_requests: number of read operations
 # write_bytes: number of bytes written
 # write_requests: number of write operations
+# read_total_times: number of millisenconds total time read.
+# write_total_times: number of millisenconds total time write
 # errors: number of errors
 #
 DiskStats = collections.namedtuple('DiskStats',
                                    ['read_bytes', 'read_requests',
                                     'write_bytes', 'write_requests',
+                                    'write_total_times', 'read_total_times'
                                     'errors'])
-
-# Named tuple representing disk rate statistics.
-#
-# read_bytes_rate: number of bytes read per second
-# read_requests_rate: number of read operations per second
-# write_bytes_rate: number of bytes written per second
-# write_requests_rate: number of write operations per second
-#
-DiskRateStats = collections.namedtuple('DiskRateStats',
-                                       ['read_bytes_rate',
-                                        'read_requests_rate',
-                                        'write_bytes_rate',
-                                        'write_requests_rate'])
-
-# Named tuple representing disk latency statistics.
-#
-# disk_latency: average disk latency
-#
-DiskLatencyStats = collections.namedtuple('DiskLatencyStats',
-                                          ['disk_latency'])
-
-# Named tuple representing disk iops statistics.
-#
-# iops: number of iops per second
-#
-DiskIOPSStats = collections.namedtuple('DiskIOPSStats',
-                                       ['iops_count'])
-
 
 # Named tuple representing disk Information.
 #
