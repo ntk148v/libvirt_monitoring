@@ -9,9 +9,18 @@ Libvirt Monitoring
      :alt: Updates
 
 
-Python Boilerplate contains all the boilerplate you need to create a Python package.
+Using
+--------
 
+* Clone this repo::
 
+	git clone http://github.com/ntk148v/libvirt_monitoring
+
+* Update configuration in config.ini file.
+
+* Run command::
+
+	python main.py start|stop|restart
 
 Features
 --------
