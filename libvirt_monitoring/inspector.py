@@ -112,6 +112,7 @@ class LibvirtInspector(object):
         return results
 
     def _check_collected_metric(self, metric):
+        LOG.info('Collecting %s!' % metric)
         return utils.ini_file_loader()['metrics-'+metric] == 'True'
 
     def _inspect_state(self, domain):
