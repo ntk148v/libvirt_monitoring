@@ -23,7 +23,7 @@ class LibvirtAgent(object):
     def run(self):
         while True:
             self.get_and_send_metrics()
-            time.sleep(1000)
+            time.sleep(60)
 
     def get_and_send_metrics(self):
         all_metrics = self.inspector.get_vm_metrics()
@@ -37,8 +37,8 @@ class LibvirtAgent(object):
                                                         f.title())
                     item_value = getattr(metric_value,  f)
                     self.send_item(base.Item(key=item_key,
-                                               name=item_name,
-                                               value=item_value))
+                                             name=item_name,
+                                             value=item_value))
 
     def create_item(self, item):
         get_params = {
@@ -63,12 +63,32 @@ class LibvirtAgent(object):
             self.zapi.do_request('item.create', create_params)
             LOG.info('Created new item with key {}' . format(item.key))
 
+    def _check_threshold_item(self, item):
+        threshold_types = [
+            'read_requests',
+            'write_requests',
+            'transmitted_ps',
+            'received_ps',
+        ]
+
+        for t in thresholds_types:
+            if t in item.key:
+                return t
+            else:
+                return None
+
     def send_item(self, item):
         self.create_item(item)
-        metrics = [ZabbixMetric(self.config['zabbix_agent-hostname'],
-                                item.key, item.value)]
+
         try:
-            result = self.zsender.send(metrics)
-            LOG.info('Send metric {} : {}' . format(item.name, result))
+            if self._check_threshold_item(item):
+                if item.value > int(self.config['thresholds-'+t]):
+                    metrics = \
+                        [ZabbixMetric(self.config['zabbix_agent-hostname'],
+                                      item.key, item.value)]
+                    result = self.zsender.send(metrics)
+                    LOG.info('Send metric {} : {}' . format(item.name,
+                                                            result))
         except Exception as e:
-            LOG.error('Error when send metric to Zabbix Server - {}' . format(e))
+            LOG.error(
+                'Error when send metric to Zabbix Server - {}' . format(e))

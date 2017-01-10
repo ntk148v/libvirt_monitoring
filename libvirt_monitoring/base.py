@@ -46,10 +46,13 @@ Interface = collections.namedtuple('Interface', ['name', 'mac',
 # rx_packets: number of received packets
 # tx_bytes: number of transmitted bytes
 # tx_packets: number of transmitted packets
+# rx_ps: number of received megabits per second.
+# tx_ps: number of transmitted megabits per second.
 #
 InterfaceStats = collections.namedtuple('InterfaceStats',
                                         ['rx_bytes', 'rx_packets',
-                                         'tx_bytes', 'tx_packets'])
+                                         'tx_bytes', 'tx_packets',
+                                         'transmitted_ps', 'received_ps'])
 
 # Named tuple representing disks.
 #

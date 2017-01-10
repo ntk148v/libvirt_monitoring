@@ -1,4 +1,5 @@
 import logging
+import time
 
 from lxml import etree
 from oslo_config import cfg
@@ -144,11 +145,18 @@ class LibvirtInspector(object):
                           for p in iface.findall('filterref/parameter'))
             interface = base.Interface(name=name, mac=mac_address,
                                        fref=fref, parameters=params)
-            dom_stats = domain.interfaceStats(name)
-            stats = base.InterfaceStats(rx_bytes=dom_stats[0],
-                                        rx_packets=dom_stats[1],
-                                        tx_bytes=dom_stats[4],
-                                        tx_packets=dom_stats[5])
+            dom_stats_1 = domain.interfaceStats(name)
+            time.sleep(1)
+            dom_stats_2 = domain.interfaceStats(name)
+            # Calculate transmitted/received megabits per second.
+            transmitted_ps = (dom_stats_1[4] - dom_stats_2[4]) * 8
+            received_ps = (dom_stats_1[0] - dom_stats_2[0]) * 8 * pow(10, -6)
+            stats = base.InterfaceStats(rx_bytes=dom_stats_1[0],
+                                        rx_packets=dom_stats_1[1],
+                                        tx_bytes=dom_stats_1[4],
+                                        tx_packets=dom_stats_1[5],
+                                        transmitted_ps=transmitted_ps,
+                                        received_ps=received_ps)
             yield (interface, stats)
 
     def _inspect_disks(self, domain):
