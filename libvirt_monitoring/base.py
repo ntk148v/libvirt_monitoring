@@ -64,7 +64,7 @@ Disk = collections.namedtuple('Disk', ['device'])
 # read_requests: number of read operations
 # write_bytes: number of bytes written
 # write_requests: number of write operations
-# read_total_times: number of millisenconds total time read.
+# read_total_times: number of millisenconds total time read
 # write_total_times: number of millisenconds total time write
 # errors: number of errors
 #
@@ -79,7 +79,7 @@ DiskStats = collections.namedtuple('DiskStats',
 # capacity: capacity of the disk
 # allocation: allocation of the disk
 # physical: usage of the disk
-
+#
 DiskInfo = collections.namedtuple('DiskInfo',
                                   ['capacity',
                                    'allocation',
@@ -87,9 +87,10 @@ DiskInfo = collections.namedtuple('DiskInfo',
 
 # Named tuple representing zabbix item.
 #
-# key: zabbix item key.
-# name: zabbix item name.
-# value: zabbix item value.
+# key: zabbix item key
+# name: zabbix item name
+# value: zabbix item value
+# #
 Item = collections.namedtuple('Item',
                               ['key', 'name', 'value'])
 
