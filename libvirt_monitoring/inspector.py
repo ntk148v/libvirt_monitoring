@@ -6,6 +6,7 @@ from oslo_utils import units
 import six
 
 from libvirt_monitoring import base
+from libvirt_monitoring import utils
 
 libvirt = None
 
@@ -79,38 +80,49 @@ class LibvirtInspector(object):
             state = domain.info()[0]
             result = {}
             # Get domain state.
-            result['statestats'] = self.inspect_state(domain)
+            result['statestats'] = self._inspect_state(domain)
 
             # Only get metrics info of running domain.
             if state == libvirt.VIR_DOMAIN_RUNNING:
-                result['cpustats'] = self.inspect_cpus(domain)
+                # Get cpu metrics.
+                if self._check_collected_metric('cpustats'):
+                    result['cpustats'] = self._inspect_cpus(domain)
                 # Get network metrics/interface.
-                for vnic in self.inspect_vnics(domain):
-                    result['interfacestats_' + vnic[0].name] = vnic[1]
+                if self._check_collected_metric('interfacestats'):
+                    for vnic in self._inspect_vnics(domain):
+                        result['interfacestats_' + vnic[0].name] = vnic[1]
                 # Get disk metrics/disk.
-                for disk in self.inspect_disks(domain):
-                    result['diskstats_' + disk[0].device] = disk[1]
+                if self._check_collected_metric('diskstats'):
+                    for disk in self._inspect_disks(domain):
+                        result['diskstats_' + disk[0].device] = disk[1]
                 # Get disk info metrics/disk.
-                for disk in self.inspect_disk_info(domain):
-                    result['diskinfo_' + disk[0].device] = disk[1]
+                if self._check_collected_metric('diskinfo'):
+                    for disk in self._inspect_disk_info(domain):
+                        result['diskinfo_' + disk[0].device] = disk[1]
                 # Get memory usage metrics.
-                result['memoryusagestats'] = self.inspect_memory_usage(domain)
+                if self._check_collected_metric('memoryusagestats'):
+                    result['memoryusagestats'] = self._inspect_memory_usage(
+                        domain)
                 # Get memory resident metrics.
-                result['memoryresidentstats'] = \
-                    self.inspect_memory_resident(domain)
+                if self._check_collected_metric('memoryresidentstats'):
+                    result['memoryresidentstats'] = \
+                        self._inspect_memory_resident(domain)
 
             results[domain.name()] = result
         return results
 
-    def inspect_state(self, domain):
+    def _check_collected_metric(self, metric):
+        return utils.ini_file_loader()['metrics-'+metric] == 'True'
+
+    def _inspect_state(self, domain):
         dom_info = domain.info()
         return base.StateStats(state=dom_info[0])
 
-    def inspect_cpus(self, domain):
+    def _inspect_cpus(self, domain):
         dom_info = domain.info()
         return base.CPUStats(number=dom_info[3], time=dom_info[4])
 
-    def inspect_vnics(self, domain):
+    def _inspect_vnics(self, domain):
         tree = etree.fromstring(domain.XMLDesc(0))
         for iface in tree.findall('devices/interface'):
             target = iface.find('target')
@@ -138,7 +150,7 @@ class LibvirtInspector(object):
                                         tx_packets=dom_stats[5])
             yield (interface, stats)
 
-    def inspect_disks(self, domain):
+    def _inspect_disks(self, domain):
         tree = etree.fromstring(domain.XMLDesc(0))
         for device in filter(
             bool,
@@ -158,7 +170,7 @@ class LibvirtInspector(object):
                                    errors=block_stats[4])
             yield (disk, stats)
 
-    def inspect_memory_usage(self, domain, duration=None):
+    def _inspect_memory_usage(self, domain, duration=None):
         try:
             memory_stats = domain.memoryStats()
             if (memory_stats and
@@ -183,7 +195,7 @@ class LibvirtInspector(object):
                 'instance_uuid': domain.ID(), 'error': e}
             raise base.NoDataException(msg)
 
-    def inspect_disk_info(self, domain):
+    def _inspect_disk_info(self, domain):
         tree = etree.fromstring(domain.XMLDesc(0))
         for disk in tree.findall('devices/disk'):
             disk_type = disk.get('type')
@@ -203,6 +215,6 @@ class LibvirtInspector(object):
                                          physical=block_info[2])
                     yield (dsk, info)
 
-    def inspect_memory_resident(self, domain, duration=None):
+    def _inspect_memory_resident(self, domain, duration=None):
         memory = domain.memoryStats()['rss'] / units.Ki
         return base.MemoryResidentStats(resident=memory)
