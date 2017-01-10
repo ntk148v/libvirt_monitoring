@@ -149,10 +149,9 @@ class LibvirtInspector(object):
             time.sleep(1)
             dom_stats_2 = domain.interfaceStats(name)
             # Calculate transmitted/received megabits per second.
-            transmitted_ps = abs(
-                (dom_stats_1[4] - dom_stats_2[4]) * 8 * pow(10, -6))
-            received_ps = abs(
-                (dom_stats_1[0] - dom_stats_2[0]) * 8 * pow(10, -6))
+            transmitted_ps = (
+                dom_stats_1[4] - dom_stats_2[4]) * 8 * pow(10, -6)
+            received_ps = (dom_stats_1[0] - dom_stats_2[0]) * 8 * pow(10, -6)
             stats = base.InterfaceStats(rx_bytes=dom_stats_1[0],
                                         rx_packets=dom_stats_1[1],
                                         tx_bytes=dom_stats_1[4],

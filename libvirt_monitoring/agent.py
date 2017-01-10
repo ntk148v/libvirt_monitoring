@@ -82,7 +82,7 @@ class LibvirtAgent(object):
 
         try:
             if self._check_threshold_item(item):
-                if item.value > int(self.config['thresholds-'+t]):
+                if abs(item.value) > int(self.config['thresholds-'+t]):
                     metrics = \
                         [ZabbixMetric(self.config['zabbix_agent-hostname'],
                                       item.key, item.value)]
