@@ -41,7 +41,7 @@ class LibvirtAgent(object):
                                              name=item_name,
                                              value=item_value))
 
-    def _get_agent_hostid(self):
+    def get_agent_hostid(self):
         get_params = {
             'filter': {
                 'host': self.config['zabbix_agent-hostname']
