@@ -76,7 +76,8 @@ class LibvirtAgent(object):
             }
 
             resp = self.zapi.do_request('trigger.create', create_params)
-            global TRIGGERIDS
+            # global TRIGGERIDS
+            LOG.info(resp['result']['triggerids'])
             TRIGGERIDS.append(resp['result']['triggerids'])
             LOG.info('Create trigger!')
         except Exception as e:
