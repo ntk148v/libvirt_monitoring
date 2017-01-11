@@ -116,6 +116,7 @@ class LibvirtAgent(object):
                 }
 
                 resp = self.zapi.do_request('trigger.get', get_params)
+                # Return False if result is existed.
                 return len(resp['result']) == 0
         else:
             return True
@@ -153,7 +154,7 @@ class LibvirtAgent(object):
                         # Create trigger for this item.
                         self.create_trigger(item)
                     else:
-                        LOG.info('Trigger is existed!')
+                        LOG.info('Trigger is existed! {}' . format(TRIGGERIDS))
         except Exception as e:
             LOG.error(
                 'Error when send metric to Zabbix Server - {}' . format(e))
