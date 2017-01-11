@@ -61,8 +61,9 @@ class LibvirtAgent(object):
 
     def create_trigger(self, item):
         try:
-            _expression = "{" + item.name + ":" + item.key + \
-                ".count(" + self.config['trigger-sec'] + \
+            _expression = "{" + self.config['zabbix_agent-hostname'] + \
+                ":" + item.key + ".count(" + \
+                self.config['trigger-sec'] + \
                 ")}>" + self.config['trigger-constant']
 
             create_params = {
