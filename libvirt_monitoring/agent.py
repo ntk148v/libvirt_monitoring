@@ -40,10 +40,29 @@ class LibvirtAgent(object):
                                              name=item_name,
                                              value=item_value))
 
+    def get_agent_hostid(self):
+        get_params = {
+            'filter': {
+                'host': self.config['zabbix_agent-hostname']
+            }
+        }
+
+        resp = self.zapi.do_request('host.get', params)
+        if len(resp['result']) > 1:
+            LOG.info('Re-check hostname configuration,\
+                you have more than one host with hostname {}'
+                     . format(self.config['zabbix_agent-hostname']))
+        elif len(resp['result']) == 0:
+            LOG.info('Hostid {}' . format(resp['result'][0]['hostid']))
+            return resp['result'][0]['hostid']
+        else:
+            LOG.exception('Unknow hostname {}' .
+                          format(self.config['zabbix_agent-hostname']))
+
     def create_item(self, item):
         get_params = {
             'output': 'extend',
-            # 'hostid': self.config['zabbix_agent-hostid'],
+            'hostid': self.get_agent_hostid(),
             'search': {
                 'key_': item.key
             }
@@ -55,7 +74,7 @@ class LibvirtAgent(object):
             create_params = {
                 'name': item.name,
                 'key_': item.key,
-                'hostid': self.config['zabbix_agent-hostid'],
+                'hostid': self.get_agent_hostid(),
                 'value_type': 3,
                 'type': 2,
             }
@@ -82,7 +101,7 @@ class LibvirtAgent(object):
 
         try:
             if self._check_threshold_item(item):
-                if abs(item.value) > int(self.config['thresholds-'+t]):
+                if abs(item.value) > int(self.config['thresholds-' + t]):
                     metrics = \
                         [ZabbixMetric(self.config['zabbix_agent-hostname'],
                                       item.key, item.value)]
