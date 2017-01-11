@@ -52,7 +52,7 @@ class LibvirtAgent(object):
             LOG.info('Re-check hostname configuration,\
                 you have more than one host with hostname {}'
                      . format(self.config['zabbix_agent-hostname']))
-        elif len(resp['result']) == 0:
+        elif len(resp['result']) == 1:
             LOG.info('Hostid {}' . format(resp['result'][0]['hostid']))
             return resp['result'][0]['hostid']
         else:
