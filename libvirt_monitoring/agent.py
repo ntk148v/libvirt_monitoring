@@ -8,7 +8,6 @@ from libvirt_monitoring import utils
 
 
 LOG = logging.getLogger(__name__)
-TRIGGERIDS = []
 
 
 class LibvirtAgent(object):
@@ -69,17 +68,32 @@ class LibvirtAgent(object):
             _description = item.name + " last " + \
                 self.config['trigger-sec'] + " is too high"
 
-            create_params = {
-                "description": _description,
-                "priority": 2,  # Warning
-                "expression": _expression,
-            }
+            _hostid = self.get_agent_hostid()
+            if _hostid:
+                # Check trigger is existed or not.
+                get_params = {
+                    'output': 'extend',
+                    'hostids': _hostid,
+                    'search': {
+                        'expression': _expression
+                    }
+                }
 
-            resp = self.zapi.do_request('trigger.create', create_params)
-            # global TRIGGERIDS
-            LOG.info(resp['result']['triggerids'])
-            TRIGGERIDS.append(resp['result']['triggerids'])
-            LOG.info('Create trigger!')
+                resp = self.zapi.do_request('trigger.get', get_params)
+                if len(resp['result']) == 0:
+                    create_params = {
+                        "description": _description,
+                        "priority": 2,  # Warning
+                        "expression": _expression,
+                    }
+
+                    self.zapi.do_request('trigger.create', create_params)
+                    LOG.info('Create trigger!')
+                else:
+                    LOG.info('Trigger is existed!')
+                    pass
+            else:
+                LOG.error('Not found hostid!')
         except Exception as e:
             LOG.error('Error when creating trigger - {}!' . format(e))
             raise e
@@ -89,7 +103,7 @@ class LibvirtAgent(object):
         if _hostid:
             get_params = {
                 'output': 'extend',
-                'hostid': _hostid,
+                'hostids': _hostid,
                 'search': {
                     'key_': item.key
                 }
@@ -110,19 +124,6 @@ class LibvirtAgent(object):
                 LOG.info('Created new item with key {}' . format(item.key))
         else:
             LOG.error('Not found hostid!')
-
-    def _check_trigger(self):
-        if len(TRIGGERIDS) > 0:
-            for triggerids in TRIGGERIDS:
-                get_params = {
-                    'triggerids': triggerids,
-                }
-
-                resp = self.zapi.do_request('trigger.get', get_params)
-                # Return False if result is existed.
-                return len(resp['result']) == 0
-        else:
-            return True
 
     def _check_threshold_item(self, item):
         threshold_types = [
@@ -152,12 +153,8 @@ class LibvirtAgent(object):
                     result = self.zsender.send(metrics)
                     LOG.info('Send metric {} : {}' . format(item.name,
                                                             result))
-                    # Check trigger is existed or not.
-                    if self._check_trigger():
-                        # Create trigger for this item.
-                        self.create_trigger(item)
-                    else:
-                        LOG.info('Trigger is existed! {}' . format(TRIGGERIDS))
+                    # Create trigger for this item.
+                    self.create_trigger(item)
         except Exception as e:
             LOG.error(
                 'Error when send metric to Zabbix Server - {}' . format(e))
