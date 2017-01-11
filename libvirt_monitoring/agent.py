@@ -85,7 +85,7 @@ class LibvirtAgent(object):
                     'output': 'extend',
                     'hostids': _hostid,
                     'search': {
-                        'expression': _expression
+                        'description': item.name
                     }
                 }
                 # Get trigger by its id.
