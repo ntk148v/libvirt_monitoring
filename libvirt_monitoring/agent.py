@@ -60,10 +60,11 @@ class LibvirtAgent(object):
                           format(self.config['zabbix_agent-hostname']))
 
     def create_item(self, item):
-        if self.get_agent_hostid():
+        _hostid = self.get_agent_hostid()
+        if hostid:
             get_params = {
                 'output': 'extend',
-                'hostid': self.get_agent_hostid(),
+                'hostid': _hostid,
                 'search': {
                     'key_': item.key
                 }
@@ -75,7 +76,7 @@ class LibvirtAgent(object):
                 create_params = {
                     'name': item.name,
                     'key_': item.key,
-                    'hostid': self.get_agent_hostid(),
+                    'hostid': _hostid,
                     'value_type': 3,
                     'type': 2,
                 }
@@ -100,10 +101,11 @@ class LibvirtAgent(object):
                 return None
 
     def send_item(self, item):
-        self.create_item(item)
-
         try:
             if self._check_threshold_item(item):
+                # Create item first, if it's not existed
+                self.create_item(item)
+                # Item value > Defined Threshold, send it to Zabbix Server
                 if abs(item.value) > int(self.config['thresholds-' + t]):
                     metrics = \
                         [ZabbixMetric(self.config['zabbix_agent-hostname'],
