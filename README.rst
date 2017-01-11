@@ -8,7 +8,8 @@ Libvirt Monitoring
      :target: https://pyup.io/repos/github/ntk148v/libvirt_monitoring/
      :alt: Updates
 
-Keywords:
+Keywords
+--------
 
 * Monitor.
 
@@ -18,7 +19,8 @@ Keywords:
 
 * Libvirt.
 
-Components:
+Components
+----------
 
 * Inspector: inspect metric using libvirt.
 
