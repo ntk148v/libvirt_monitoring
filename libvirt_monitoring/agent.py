@@ -60,27 +60,30 @@ class LibvirtAgent(object):
                           format(self.config['zabbix_agent-hostname']))
 
     def create_item(self, item):
-        get_params = {
-            'output': 'extend',
-            'hostid': self.get_agent_hostid(),
-            'search': {
-                'key_': item.key
-            }
-        }
-
-        resp = self.zapi.do_request('item.get', get_params)
-        # Check item is existed or not.
-        if len(resp['result']) == 0:
-            create_params = {
-                'name': item.name,
-                'key_': item.key,
+        if self.get_agent_hostid():
+            get_params = {
+                'output': 'extend',
                 'hostid': self.get_agent_hostid(),
-                'value_type': 3,
-                'type': 2,
+                'search': {
+                    'key_': item.key
+                }
             }
 
-            self.zapi.do_request('item.create', create_params)
-            LOG.info('Created new item with key {}' . format(item.key))
+            resp = self.zapi.do_request('item.get', get_params)
+            # Check item is existed or not.
+            if len(resp['result']) == 0:
+                create_params = {
+                    'name': item.name,
+                    'key_': item.key,
+                    'hostid': self.get_agent_hostid(),
+                    'value_type': 3,
+                    'type': 2,
+                }
+
+                self.zapi.do_request('item.create', create_params)
+                LOG.info('Created new item with key {}' . format(item.key))
+        else:
+            LOG.error('Not found hostid!')
 
     def _check_threshold_item(self, item):
         threshold_types = [
