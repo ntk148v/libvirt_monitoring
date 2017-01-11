@@ -8,7 +8,7 @@ from libvirt_monitoring import utils
 
 
 LOG = logging.getLogger(__name__)
-TRIGGERID = None
+TRIGGERIDS = []
 
 
 class LibvirtAgent(object):
@@ -74,8 +74,8 @@ class LibvirtAgent(object):
             }
 
             resp = self.zapi.do_request('trigger.create', create_params)
-            global TRIGGERID
-            TRIGGERID = resp['result']['triggerids']
+            global TRIGGERIDS
+            TRIGGERIDS.append(resp['result']['triggerids'])
             LOG.info('Create trigger!')
         except Exception as e:
             LOG.error('Error when creating trigger - {}!' . format(e))
@@ -108,16 +108,17 @@ class LibvirtAgent(object):
         else:
             LOG.error('Not found hostid!')
 
-    def _check_trigger(self, triggerids):
-        if triggerids:
-            get_params = {
-                'triggerids': triggerids,
-            }
+    def _check_trigger(self):
+        if len(TRIGGERIDS) > 0:    
+            for triggerids in TRIGGERIDS:
+                get_params = {
+                    'triggerids': triggerids,
+                }
 
-            resp = self.zapi.do_request('trigger.get', get_params)
-            return len(resp['result']) > 0
+                resp = self.zapi.do_request('trigger.get', get_params)
+                return len(resp['result']) > 0
         else:
-            return False
+            return True
 
     def _check_threshold_item(self, item):
         threshold_types = [
@@ -148,7 +149,7 @@ class LibvirtAgent(object):
                     LOG.info('Send metric {} : {}' . format(item.name,
                                                             result))
                     # Check trigger is existed or not.
-                    if not self._check_trigger(TRIGGERID):
+                    if not self._check_trigger():
                         # Create trigger for this item.
                         self.create_trigger(item)
         except Exception as e:
