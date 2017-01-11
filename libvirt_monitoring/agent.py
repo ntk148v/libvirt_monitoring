@@ -8,6 +8,7 @@ from libvirt_monitoring import utils
 
 
 LOG = logging.getLogger(__name__)
+TRIGGERID = None
 
 
 class LibvirtAgent(object):
@@ -40,7 +41,7 @@ class LibvirtAgent(object):
                                              name=item_name,
                                              value=item_value))
 
-    def get_agent_hostid(self):
+    def _get_agent_hostid(self):
         get_params = {
             'filter': {
                 'host': self.config['zabbix_agent-hostname']
@@ -72,7 +73,9 @@ class LibvirtAgent(object):
                 "expression": _expression,
             }
 
-            self.zapi.do_request('trigger.create', create_params)
+            resp = self.zapi.do_request('trigger.create', create_params)
+            global TRIGGERID
+            TRIGGERID = resp['result'][0]['triggerids']
             LOG.info('Create trigger!')
         except Exception as e:
             LOG.error('Error when creating trigger - {}!' . format(e))
@@ -105,6 +108,17 @@ class LibvirtAgent(object):
         else:
             LOG.error('Not found hostid!')
 
+    def _check_trigger(self, triggerid):
+        if triggerid:
+            get_params = {
+                'triggerids': triggerids,
+            }
+
+            resp = self.zapi.do_request('trigger.get', get_params)
+            return len(resp['result']) > 0
+        else:
+            return False
+
     def _check_threshold_item(self, item):
         threshold_types = [
             'read_requests',
@@ -133,8 +147,10 @@ class LibvirtAgent(object):
                     result = self.zsender.send(metrics)
                     LOG.info('Send metric {} : {}' . format(item.name,
                                                             result))
-                    # Create trigger for this item.
-                    self.create_trigger(item)
+                    # Check trigger is existed or not.
+                    if not self._check_trigger(TRIGGERID):
+                        # Create trigger for this item.
+                        self.create_trigger(item)
         except Exception as e:
             LOG.error(
                 'Error when send metric to Zabbix Server - {}' . format(e))
