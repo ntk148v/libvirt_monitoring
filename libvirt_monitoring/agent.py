@@ -63,7 +63,7 @@ class LibvirtAgent(object):
         try:
             _expression = "{" + item.name + ":" + item.key + \
                 ".count(" + self.config['trigger-sec'] + \
-                ")}>" + int(self.config['trigger-constant'])
+                ")}>" + self.config['trigger-constant']
 
             create_params = {
                 "description": item.name + " last 5 mins is too high",
@@ -74,7 +74,7 @@ class LibvirtAgent(object):
             self.zapi.do_request('trigger.create', create_params)
             LOG.info('Create trigger!')
         except Exception as e:
-            LOG.error('Error when creating trigger - {}' . format(e))
+            LOG.error('Error when creating trigger - {}!' . format(e))
             raise e
 
     def create_item(self, item):
