@@ -11,7 +11,7 @@ from libvirt_monitoring import utils
 
 libvirt = None
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 OPTS = [
     cfg.StrOpt('libvirt_type',
@@ -196,6 +196,7 @@ class LibvirtInspector(object):
                        '<name=%(name)s, id=%(id)s>, '
                        'can not get info from libvirt.') % {
                     'name': domain.name(), 'id': domain.ID()}
+                LOG.error(msg)
                 raise base.NoDataException(msg)
         # memoryStats might launch an exception if the method is not supported
         # by the underlying hypervisor being used by libvirt.
@@ -203,6 +204,7 @@ class LibvirtInspector(object):
             msg = ('Failed to inspect memory usage of %(instance_uuid)s, '
                    'can not get info from libvirt: %(error)s') % {
                 'instance_uuid': domain.ID(), 'error': e}
+            LOG.error(msg)
             raise base.NoDataException(msg)
 
     def _inspect_disk_info(self, domain):
@@ -211,7 +213,7 @@ class LibvirtInspector(object):
             disk_type = disk.get('type')
             if disk_type:
                 if disk_type == 'network':
-                    log.debug('Inspection disk usage of network disk '
+                    LOG.debug('Inspection disk usage of network disk '
                               '%(domain_id)s unsupported by libvirt' % {
                                   'domain_id': domain.ID()})
                     continue
