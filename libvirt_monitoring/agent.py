@@ -61,7 +61,7 @@ class LibvirtAgent(object):
 
     def create_item(self, item):
         _hostid = self.get_agent_hostid()
-        if hostid:
+        if _hostid:
             get_params = {
                 'output': 'extend',
                 'hostid': _hostid,
