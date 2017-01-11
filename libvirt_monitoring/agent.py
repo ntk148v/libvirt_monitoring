@@ -93,7 +93,7 @@ class LibvirtAgent(object):
             'received_ps',
         ]
 
-        for t in thresholds_types:
+        for t in threshold_types:
             if t in item.key:
                 return t
             else:
