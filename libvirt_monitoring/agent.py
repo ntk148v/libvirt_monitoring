@@ -47,7 +47,7 @@ class LibvirtAgent(object):
             }
         }
 
-        resp = self.zapi.do_request('host.get', params)
+        resp = self.zapi.do_request('host.get', get_params)
         if len(resp['result']) > 1:
             LOG.info('Re-check hostname configuration,\
                 you have more than one host with hostname {}'
