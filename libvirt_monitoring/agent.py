@@ -66,9 +66,11 @@ class LibvirtAgent(object):
                 ":" + item.key + ".count(" + \
                 self.config['trigger-sec'] + \
                 ")}>" + self.config['trigger-constant']
+            _description = item.name + " last " + \
+                self.config['trigger-sec'] + " is too high"
 
             create_params = {
-                "description": item.name + " last 5 mins is too high",
+                "description": _description,
                 "priority": 2,  # Warning
                 "expression": _expression,
             }
