@@ -109,14 +109,14 @@ class LibvirtAgent(object):
             LOG.error('Not found hostid!')
 
     def _check_trigger(self):
-        if len(TRIGGERIDS) > 0:    
+        if len(TRIGGERIDS) > 0:
             for triggerids in TRIGGERIDS:
                 get_params = {
                     'triggerids': triggerids,
                 }
 
                 resp = self.zapi.do_request('trigger.get', get_params)
-                return len(resp['result']) > 0
+                return len(resp['result']) == 0
         else:
             return True
 
@@ -149,9 +149,11 @@ class LibvirtAgent(object):
                     LOG.info('Send metric {} : {}' . format(item.name,
                                                             result))
                     # Check trigger is existed or not.
-                    if not self._check_trigger():
+                    if self._check_trigger():
                         # Create trigger for this item.
                         self.create_trigger(item)
+                    else:
+                        LOG.info('Trigger is existed!')
         except Exception as e:
             LOG.error(
                 'Error when send metric to Zabbix Server - {}' . format(e))
