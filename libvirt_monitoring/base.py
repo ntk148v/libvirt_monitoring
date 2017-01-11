@@ -74,7 +74,7 @@ Disk = collections.namedtuple('Disk', ['device'])
 DiskStats = collections.namedtuple('DiskStats',
                                    ['read_bytes', 'read_requests',
                                     'write_bytes', 'write_requests',
-                                    'write_total_times', 'read_total_times'
+                                    'write_total_times', 'read_total_times',
                                     'errors'])
 
 # Named tuple representing disk Information.
