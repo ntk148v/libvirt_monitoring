@@ -59,6 +59,24 @@ class LibvirtAgent(object):
             LOG.exception('Unknow hostname {}' .
                           format(self.config['zabbix_agent-hostname']))
 
+    def create_trigger(self, item):
+        try:
+            _expression = "{" + item.name + ":" + item.key + \
+                ".count(" + self.config['trigger-sec'] + \
+                ")}>" + int(self.config['trigger-constant'])
+
+            create_params = {
+                "description": item.name + " last 5 mins is too high",
+                "priority": 2,  # Warning
+                "expression": _expression,
+            }
+
+            self.zapi.do_request('trigger.create', create_params)
+            LOG.info('Create trigger!')
+        except Exception as e:
+            LOG.error('Error when creating trigger - {}' . format(e))
+            raise e
+
     def create_item(self, item):
         _hostid = self.get_agent_hostid()
         if _hostid:
@@ -114,6 +132,8 @@ class LibvirtAgent(object):
                     result = self.zsender.send(metrics)
                     LOG.info('Send metric {} : {}' . format(item.name,
                                                             result))
+                    # Create trigger for this item.
+                    self.create_trigger(item)
         except Exception as e:
             LOG.error(
                 'Error when send metric to Zabbix Server - {}' . format(e))
