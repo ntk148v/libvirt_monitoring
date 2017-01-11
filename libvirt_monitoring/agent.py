@@ -108,8 +108,8 @@ class LibvirtAgent(object):
         else:
             LOG.error('Not found hostid!')
 
-    def _check_trigger(self, triggerid):
-        if triggerid:
+    def _check_trigger(self, triggerids):
+        if triggerids:
             get_params = {
                 'triggerids': triggerids,
             }
