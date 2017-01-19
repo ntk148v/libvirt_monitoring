@@ -22,8 +22,10 @@ def ini_file_loader(filename=None):
     return config_dict
 
 
-def logging_config_loader(logfile='/var/log/libvirt_agent.log'):
+def logging_config_loader(errorfile='/var/log/libvirt_agent_error.log',
+                          infofile='/var/log/libvirt_agent_info.log'):
     logini = DIR_PATH + '/logging.ini'
     logging.config.fileConfig(logini,
-                              defaults={'logfile': logfile},
+                              defaults={'errorfile': errorfile,
+                                        'infofile': infofile},
                               disable_existing_loggers=False)

@@ -63,7 +63,7 @@ class LibvirtInspector(object):
 
         return self.connection
 
-    def _cal_metric_ps(self, prev_metric, current_metric, unit='MB/s'):
+    def _cal_metric_ps(self, current_metric, prev_metric, unit='MB/s'):
         """Calculate metric value per second"""
         result = current_metric - prev_metric
         if unit == 'MB/s':
@@ -252,9 +252,9 @@ class LibvirtInspector(object):
             disk_type = disk.get('type')
             if disk_type:
                 if disk_type == 'network':
-                    LOG.debug('Inspection disk usage of network disk '
-                              '%(domain_id)s unsupported by libvirt' % {
-                                  'domain_id': domain.ID()})
+                    LOG.info('Inspection disk usage of network disk '
+                             '%(domain_id)s unsupported by libvirt' % {
+                                 'domain_id': domain.ID()})
                     continue
                 target = disk.find('target')
                 device = target.get('dev')
