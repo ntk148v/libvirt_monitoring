@@ -132,8 +132,15 @@ class LibvirtInspector(object):
         return base.StateStats(state=dom_info[0])
 
     def _inspect_cpus(self, domain):
-        dom_info = domain.info()
-        return base.CPUStats(number=dom_info[3], time=dom_info[4])
+        try:
+            dom_info = domain.info()
+            return base.CPUStats(number=dom_info[3], time=dom_info[4])
+        except libvirt.libvirtError as e:
+            msg = ('Failed to inspect cpu stats of %(instance_uuid)s, '
+                   'can not get info from libvirt: %(error)s') % {
+                'instance_uuid': domain.UUIDString(), 'error': e}
+            LOG.error(msg)
+            return None
 
     def _inspect_vnics(self, domain):
         tree = etree.fromstring(domain.XMLDesc(0))
@@ -156,28 +163,39 @@ class LibvirtInspector(object):
                           for p in iface.findall('filterref/parameter'))
             interface = base.Interface(name=name, mac=mac_address,
                                        fref=fref, parameters=params)
-            # Get stats.
-            dom_stats_1 = domain.interfaceStats(name)
-            time.sleep(1)
-            dom_stats_2 = domain.interfaceStats(name)
-            # Calculate transmitted/received megabits/second.
-            tx_megabit_ps = self._cal_metric_ps(dom_stats_2[4],
-                                                dom_stats_1[4],
-                                                unit='Mb/s')
-            rx_megabit_ps = self._cal_metric_ps(dom_stats_2[0],
-                                                dom_stats_1[0],
-                                                unit='Mb/s')
-            # Calculate transmitted/received packets/second.
-            tx_packets_ps = self._cal_metric_ps(dom_stats_2[5],
-                                                dom_stats_1[5],
-                                                unit='packets/s')
-            rx_packets_ps = self._cal_metric_ps(dom_stats_2[1],
-                                                dom_stats_1[1],
-                                                unit='packets/s')
-            stats = base.InterfaceStats(tx_megabit_ps=tx_megabit_ps,
-                                        rx_megabit_ps=rx_megabit_ps,
-                                        tx_packets_ps=tx_packets_ps,
-                                        rx_packets_ps=rx_packets_ps)
+            stats = None
+            try:
+                # Get stats.
+                dom_stats_1 = domain.interfaceStats(name)
+                time.sleep(1)
+                dom_stats_2 = domain.interfaceStats(name)
+                # Calculate transmitted/received megabits/second.
+                tx_megabit_ps = self._cal_metric_ps(dom_stats_2[4],
+                                                    dom_stats_1[4],
+                                                    unit='Mb/s')
+                rx_megabit_ps = self._cal_metric_ps(dom_stats_2[0],
+                                                    dom_stats_1[0],
+                                                    unit='Mb/s')
+                # Calculate transmitted/received packets/second.
+                tx_packets_ps = self._cal_metric_ps(dom_stats_2[5],
+                                                    dom_stats_1[5],
+                                                    unit='packets/s')
+                rx_packets_ps = self._cal_metric_ps(dom_stats_2[1],
+                                                    dom_stats_1[1],
+                                                    unit='packets/s')
+                stats = base.InterfaceStats(tx_megabit_ps=tx_megabit_ps,
+                                            rx_megabit_ps=rx_megabit_ps,
+                                            tx_packets_ps=tx_packets_ps,
+                                            rx_packets_ps=rx_packets_ps)
+            except libvirt.libvirtError as e:
+                msg = ('Failed to inspect %(interface)s stats of '
+                       '%(instance_uuid)s, can not get info from'
+                       'libvirt: %(error)s') % {
+                    'interface': interface,
+                    'instance_uuid': domain.UUIDString(),
+                    'error': e}
+                LOG.error(msg)
+
             yield (interface, stats)
 
     def _inspect_disks(self, domain):
@@ -187,35 +205,46 @@ class LibvirtInspector(object):
             [target.get("dev")
              for target in tree.findall('devices/disk/target')]):
             disk = base.Disk(device=device)
-            block_stats_1 = domain.blockStats(device)
-            # block_latency_stats_1 = domain.blockStatsFlags(device)
-            time.sleep(1)
-            block_stats_2 = domain.blockStats(device)
-            block_latency_stats_2 = domain.blockStatsFlags(device)
-            # Calculate read/write operations/s.
-            read_requests_ps = self._cal_metric_ps(block_stats_2[0],
-                                                   block_stats_1[0],
-                                                   unit='operations/s')
-            write_requests_ps = self._cal_metric_ps(block_stats_2[2],
-                                                    block_stats_1[2],
-                                                    unit='operations/s')
-            # Calculate read/write megabytes/s.
-            read_megabytes_ps = self._cal_metric_ps(block_stats_2[1],
-                                                    block_stats_1[1],
-                                                    unit='MB/s')
-            write_megabytes_ps = self._cal_metric_ps(block_stats_2[3],
-                                                     block_stats_1[3],
-                                                     unit='MB/s')
-            # Calculate read/write total times in ms.
-            read_total_times = block_latency_stats_2['rd_total_times'] / 1E6
-            write_total_times = block_latency_stats_2['wr_total_times'] / 1E6
-            stats = base.DiskStats(read_requests_ps=read_requests_ps,
-                                   write_requests_ps=write_requests_ps,
-                                   read_megabytes_ps=read_megabytes_ps,
-                                   write_megabytes_ps=write_megabytes_ps,
-                                   read_total_times=read_total_times,
-                                   write_total_times=write_total_times,
-                                   errors=block_stats_2[4])
+            stats = None
+            try:
+                block_stats_1 = domain.blockStats(device)
+                # block_latency_stats_1 = domain.blockStatsFlags(device)
+                time.sleep(1)
+                block_stats_2 = domain.blockStats(device)
+                block_latency_stats_2 = domain.blockStatsFlags(device)
+                # Calculate read/write operations/s.
+                read_requests_ps = self._cal_metric_ps(block_stats_2[0],
+                                                       block_stats_1[0],
+                                                       unit='operations/s')
+                write_requests_ps = self._cal_metric_ps(block_stats_2[2],
+                                                        block_stats_1[2],
+                                                        unit='operations/s')
+                # Calculate read/write megabytes/s.
+                read_megabytes_ps = self._cal_metric_ps(block_stats_2[1],
+                                                        block_stats_1[1],
+                                                        unit='MB/s')
+                write_megabytes_ps = self._cal_metric_ps(block_stats_2[3],
+                                                         block_stats_1[3],
+                                                         unit='MB/s')
+                # Calculate read/write total times in ms.
+                read_total_times = block_latency_stats_2[
+                    'rd_total_times'] / 1E6
+                write_total_times = block_latency_stats_2[
+                    'wr_total_times'] / 1E6
+                stats = base.DiskStats(read_requests_ps=read_requests_ps,
+                                       write_requests_ps=write_requests_ps,
+                                       read_megabytes_ps=read_megabytes_ps,
+                                       write_megabytes_ps=write_megabytes_ps,
+                                       read_total_times=read_total_times,
+                                       write_total_times=write_total_times,
+                                       errors=block_stats_2[4])
+            except libvirt.libvirtError as e:
+                msg = ('Failed to inspect %(device)s stats of '
+                       '%(instance_uuid)s, can not get info from'
+                       'libvirt: %(error)s') % {
+                    'device': device, 'instance_uuid': domain.UUIDString(),
+                    'error': e}
+                LOG.error(msg)
 
             yield (disk, stats)
 
@@ -236,15 +265,17 @@ class LibvirtInspector(object):
                        'can not get info from libvirt.') % {
                     'name': domain.name(), 'id': domain.ID()}
                 LOG.error(msg)
-                raise base.NoDataException(msg)
+                return None
+                # raise base.NoDataException(msg)
         # memoryStats might launch an exception if the method is not supported
         # by the underlying hypervisor being used by libvirt.
         except libvirt.libvirtError as e:
             msg = ('Failed to inspect memory usage of %(instance_uuid)s, '
                    'can not get info from libvirt: %(error)s') % {
-                'instance_uuid': domain.ID(), 'error': e}
+                'instance_uuid': domain.UUIDString(), 'error': e}
             LOG.error(msg)
-            raise base.NoDataException(msg)
+            # raise base.NoDataException(msg)
+            return None
 
     def _inspect_disk_info(self, domain):
         tree = etree.fromstring(domain.XMLDesc(0))
@@ -267,5 +298,12 @@ class LibvirtInspector(object):
                     yield (dsk, info)
 
     def _inspect_memory_resident(self, domain, duration=None):
-        memory = domain.memoryStats()['rss'] / units.Ki
-        return base.MemoryResidentStats(resident=memory)
+        try:
+            memory = domain.memoryStats()['rss'] / units.Ki
+            return base.MemoryResidentStats(resident=memory)
+        except libvirt.libvirtError as e:
+            msg = ('Failed to inspect memory resident of %(instance_uuid)s, '
+                   'can not get info from libvirt: %(error)s') % {
+                'instance_uuid': domain.UUIDString(), 'error': e}
+            LOG.error(msg)
+            return None

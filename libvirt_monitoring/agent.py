@@ -39,9 +39,16 @@ class LibvirtAgent(object):
         all_metrics = self.inspector.get_vm_metrics()
         for vm, vm_metrics in all_metrics.items():
             for metric_key, metric_value in vm_metrics.items():
+                if not metric_value:
+                    msg = ('Failed when get %(metric)s' %
+                           {'metric': metric_key})
+                    LOG.error(msg)
+                    continue
                 for f in metric_value._fields:
                     # Item key, example: cpustats.number[instance-000002ee]
-                    item_key = "{}.{}[{}]" . format(metric_key, f, vm)
+                    item_key = "{}.{}.{}[{}]" . format(
+                        self.config['zabbix_agent-hostname'],
+                        metric_key, f, vm)
                     item_name = "{} - {} - {}" . format(vm.title(),
                                                         metric_key.title(),
                                                         f.title())
