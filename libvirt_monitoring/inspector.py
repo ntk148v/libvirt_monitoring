@@ -4,7 +4,6 @@ import time
 from lxml import etree
 from oslo_config import cfg
 from oslo_utils import units
-import six
 
 from libvirt_monitoring import base
 from libvirt_monitoring import utils
@@ -64,6 +63,18 @@ class LibvirtInspector(object):
 
         return self.connection
 
+    def _cal_metric_ps(self, prev_metric, current_metric, unit='MB/s'):
+        """Calculate metric value per second"""
+        result = current_metric - prev_metric
+        if unit == 'MB/s':
+            return result * pow(10, -6)
+        elif unit == 'Mb/s':
+            return result * 8 * pow(10, -6)
+        elif unit == 'packets/s' or unit == 'operations/s':
+            return result
+        else:
+            LOG.exception('Unknow unit type!')
+
     @retry_on_disconnect
     def get_vm_metrics(self):
         self._get_connection()
@@ -109,7 +120,7 @@ class LibvirtInspector(object):
                     result['memoryresidentstats'] = \
                         self._inspect_memory_resident(domain)
 
-            results[domain.name()] = result
+            results[domain.UUIDString()] = result
         return results
 
     def _check_collected_metric(self, metric):
@@ -145,19 +156,28 @@ class LibvirtInspector(object):
                           for p in iface.findall('filterref/parameter'))
             interface = base.Interface(name=name, mac=mac_address,
                                        fref=fref, parameters=params)
+            # Get stats.
             dom_stats_1 = domain.interfaceStats(name)
             time.sleep(1)
             dom_stats_2 = domain.interfaceStats(name)
-            # Calculate transmitted/received megabits per second.
-            transmitted_ps = (
-                dom_stats_1[4] - dom_stats_2[4]) * 8 * pow(10, -6)
-            received_ps = (dom_stats_1[0] - dom_stats_2[0]) * 8 * pow(10, -6)
-            stats = base.InterfaceStats(rx_bytes=dom_stats_1[0],
-                                        rx_packets=dom_stats_1[1],
-                                        tx_bytes=dom_stats_1[4],
-                                        tx_packets=dom_stats_1[5],
-                                        transmitted_ps=transmitted_ps,
-                                        received_ps=received_ps)
+            # Calculate transmitted/received megabits/second.
+            tx_megabit_ps = self._cal_metric_ps(dom_stats_2[4],
+                                                dom_stats_1[4],
+                                                unit='Mb/s')
+            rx_megabit_ps = self._cal_metric_ps(dom_stats_2[0],
+                                                dom_stats_1[0],
+                                                unit='Mb/s')
+            # Calculate transmitted/received packets/second.
+            tx_packets_ps = self._cal_metric_ps(dom_stats_2[5],
+                                                dom_stats_1[5],
+                                                unit='packets/s')
+            rx_packets_ps = self._cal_metric_ps(dom_stats_2[1],
+                                                dom_stats_1[1],
+                                                unit='packets/s')
+            stats = base.InterfaceStats(tx_megabit_ps=tx_megabit_ps,
+                                        rx_megabit_ps=rx_megabit_ps,
+                                        tx_packets_ps=tx_packets_ps,
+                                        rx_packets_ps=rx_packets_ps)
             yield (interface, stats)
 
     def _inspect_disks(self, domain):
@@ -167,17 +187,36 @@ class LibvirtInspector(object):
             [target.get("dev")
              for target in tree.findall('devices/disk/target')]):
             disk = base.Disk(device=device)
-            block_stats = domain.blockStats(device)
-            block_latency_stats = domain.blockStatsFlags(device)
-            stats = base.DiskStats(read_requests=block_stats[0],
-                                   read_bytes=block_stats[1],
-                                   write_requests=block_stats[2],
-                                   write_bytes=block_stats[3],
-                                   write_total_times=block_latency_stats[
-                                       'wr_total_times'] / 1E6,
-                                   read_total_times=block_latency_stats[
-                                       'rd_total_times'] / 1E6,
-                                   errors=block_stats[4])
+            block_stats_1 = domain.blockStats(device)
+            # block_latency_stats_1 = domain.blockStatsFlags(device)
+            time.sleep(1)
+            block_stats_2 = domain.blockStats(device)
+            block_latency_stats_2 = domain.blockStatsFlags(device)
+            # Calculate read/write operations/s.
+            read_requests_ps = self._cal_metric_ps(block_stats_2[0],
+                                                   block_stats_1[0],
+                                                   unit='operations/s')
+            write_requests_ps = self._cal_metric_ps(block_stats_2[2],
+                                                    block_stats_1[2],
+                                                    unit='operations/s')
+            # Calculate read/write megabytes/s.
+            read_megabytes_ps = self._cal_metric_ps(block_stats_2[1],
+                                                    block_stats_1[1],
+                                                    unit='MB/s')
+            write_megabytes_ps = self._cal_metric_ps(block_stats_2[3],
+                                                     block_stats_1[3],
+                                                     unit='MB/s')
+            # Calculate read/write total times in ms.
+            read_total_times = block_latency_stats_2['rd_total_times'] / 1E6
+            write_total_times = block_latency_stats_2['wr_total_times'] / 1E6
+            stats = base.DiskStats(read_requests_ps=read_requests_ps,
+                                   write_requests_ps=write_requests_ps,
+                                   read_megabytes_ps=read_megabytes_ps,
+                                   write_megabytes_ps=write_megabytes_ps,
+                                   read_total_times=read_total_times,
+                                   write_total_times=write_total_times,
+                                   errors=block_stats_2[4])
+
             yield (disk, stats)
 
     def _inspect_memory_usage(self, domain, duration=None):

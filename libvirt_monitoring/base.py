@@ -42,17 +42,14 @@ Interface = collections.namedtuple('Interface', ['name', 'mac',
 
 # Named tuple representing vNIC statistics.
 #
-# rx_bytes: number of received bytes
-# rx_packets: number of received packets
-# tx_bytes: number of transmitted bytes
-# tx_packets: number of transmitted packets
-# rx_ps: number of received megabits per second.
-# tx_ps: number of transmitted megabits per second.
+# tx_megabit_ps: number of transmitted megabits per second
+# rx_megabit_ps: number of received megabits per second
+# tx_packets_ps: number of transmitted packets per second
+# rx_packets_ps: number of received packets per second
 #
 InterfaceStats = collections.namedtuple('InterfaceStats',
-                                        ['rx_bytes', 'rx_packets',
-                                         'tx_bytes', 'tx_packets',
-                                         'transmitted_ps', 'received_ps'])
+                                        ['tx_megabit_ps', 'rx_megabit_ps',
+                                         'tx_packets_ps', 'rx_packets_ps'])
 
 # Named tuple representing disks.
 #
@@ -63,17 +60,17 @@ Disk = collections.namedtuple('Disk', ['device'])
 
 # Named tuple representing disk statistics.
 #
-# read_bytes: number of bytes read
-# read_requests: number of read operations
-# write_bytes: number of bytes written
-# write_requests: number of write operations
+# read_megabytes_ps: number of megabytes read per second
+# read_requests_ps: number of read operations per second
+# write_megabytes_ps: number of megabytes written per second
+# write_requests_ps: number of write operations per second
 # read_total_times: number of millisenconds total time read
 # write_total_times: number of millisenconds total time write
 # errors: number of errors
 #
 DiskStats = collections.namedtuple('DiskStats',
-                                   ['read_bytes', 'read_requests',
-                                    'write_bytes', 'write_requests',
+                                   ['read_megabytes_ps', 'read_requests_ps',
+                                    'write_megabytes_ps', 'write_requests_ps',
                                     'write_total_times', 'read_total_times',
                                     'errors'])
 
@@ -93,7 +90,7 @@ DiskInfo = collections.namedtuple('DiskInfo',
 # key: zabbix item key
 # name: zabbix item name
 # value: zabbix item value
-# #
+#
 Item = collections.namedtuple('Item',
                               ['key', 'name', 'value'])
 

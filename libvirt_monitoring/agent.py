@@ -15,7 +15,12 @@ class LibvirtAgent(object):
     def __init__(self):
         self.config = utils.ini_file_loader()
         self.inspector = inspector.LibvirtInspector()
-        self.zsender = ZabbixSender(use_config=True)
+        if self.config['zabbix_agent-use_config'] == 'True':
+            self.zsender = ZabbixSender(use_config=True)
+        else:
+            self.zsender = ZabbixSender(
+                zabbix_server=self.config['zabbix_server-ip'],
+                zabbix_port=self.config['zabbix_server-port'])
         self.zapi = ZabbixAPI(url=self.config['zabbix_server-url'],
                               user=self.config['zabbix_server-user'],
                               password=self.config['zabbix_server-password'])
@@ -143,10 +148,10 @@ class LibvirtAgent(object):
         """
         # Specific metrics.
         threshold_types = [
-            'read_requests',
-            'write_requests',
-            'transmitted_ps',
-            'received_ps',
+            'read_requests_ps',
+            'write_requests_ps',
+            'tx_megabits_ps',
+            'rx_megabits_ps',
         ]
 
         for t in threshold_types:
