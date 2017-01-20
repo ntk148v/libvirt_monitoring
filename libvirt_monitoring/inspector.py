@@ -80,6 +80,10 @@ class LibvirtInspector(object):
             state = domain.info()[0]
             result = {}
             # Get domain state.
+            msg = 'Inspect metrics of %(instance_uuid)s - %(state)s' % {
+                'instance_uuid': domain.UUIDString(),
+                'state': self._inspect_state(domain)}
+            LOG.info(msg)
             result['statestats'] = self._inspect_state(domain)
 
             # Only get metrics info of running domain.
