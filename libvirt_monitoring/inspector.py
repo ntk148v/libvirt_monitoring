@@ -63,18 +63,6 @@ class LibvirtInspector(object):
 
         return self.connection
 
-    def _cal_metric_ps(self, current_metric, prev_metric, unit='MB/s'):
-        """Calculate metric value per second"""
-        result = current_metric - prev_metric
-        if unit == 'MB/s':
-            return result * pow(10, -6)
-        elif unit == 'Mb/s':
-            return result * 8 * pow(10, -6)
-        elif unit == 'packets/s' or unit == 'operations/s':
-            return result
-        else:
-            LOG.exception('Unknow unit type!')
-
     @retry_on_disconnect
     def get_vm_metrics(self):
         self._get_connection()
@@ -122,6 +110,18 @@ class LibvirtInspector(object):
 
             results[domain.UUIDString()] = result
         return results
+
+    def _cal_metric_ps(self, current_metric, prev_metric, unit='MB/s'):
+        """Calculate metric value per second"""
+        result = current_metric - prev_metric
+        if unit == 'MB/s':
+            return result * pow(10, -6)
+        elif unit == 'Mb/s':
+            return result * 8 * pow(10, -6)
+        elif unit == 'packets/s' or unit == 'operations/s':
+            return result
+        else:
+            LOG.exception('Unknow unit type!')
 
     def _check_collected_metric(self, metric):
         LOG.info('Collecting %s!' % metric)
