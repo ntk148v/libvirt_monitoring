@@ -20,7 +20,7 @@ class LibvirtAgent(object):
         else:
             self.zsender = ZabbixSender(
                 zabbix_server=self.config['zabbix_server-ip'],
-                zabbix_port=self.config['zabbix_server-port'])
+                zabbix_port=int(self.config['zabbix_server-port']))
         self.zapi = ZabbixAPI(url=self.config['zabbix_server-url'],
                               user=self.config['zabbix_server-user'],
                               password=self.config['zabbix_server-password'])
