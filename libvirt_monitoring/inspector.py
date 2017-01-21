@@ -23,6 +23,17 @@ OPTS = [
                     '(which is dependent on libvirt_type).'),
 ]
 
+state_mapper = {
+    0: 'VIR_DOMAIN_NONE',
+    1: 'VIR_DOMAIN_RUNNING',
+    2: 'VIR_DOMAIN_BLOCKED',
+    3: 'VIR_DOMAIN_PAUSED',
+    4: 'VIR_DOMAIN_SHUTDOWN',
+    5: 'VIR_DOMAIN_SHUTOFF',
+    6: 'VIR_DOMAIN_CRASHED',
+    7: 'VIR_DOMAIN_PMSUSPENDED'
+}
+
 CONF = cfg.CONF
 CONF.register_opts(OPTS)
 
@@ -77,40 +88,51 @@ class LibvirtInspector(object):
         # }
         results = {}
         for domain in all_domains:
-            state = domain.info()[0]
             result = {}
-            # Get domain state.
-            msg = 'Inspect metrics of %(instance_uuid)s - %(state)s' % {
-                'instance_uuid': domain.UUIDString(),
-                'state': self._inspect_state(domain)}
+            msg = 'Inspect metrics of %(instance_uuid)s' % {
+                'instance_uuid': domain.UUIDString()}
             LOG.info(msg)
-            result['statestats'] = self._inspect_state(domain)
+            # Get domain state.
+            state = self._inspect_state(domain)
+            self._log_inspection(state)
+            result['statestats'] = state
 
             # Only get metrics info of running domain.
-            if state == libvirt.VIR_DOMAIN_RUNNING:
+            if is_running:
                 # Get cpu metrics.
                 if self._check_collected_metric('cpustats'):
-                    result['cpustats'] = self._inspect_cpus(domain)
+                    _cpustats = self._inspect_cpus(domain)
+                    self._log_inspection(_cpustats)
+                    result['cpustats'] = _cpustats
                 # Get network metrics/interface.
                 if self._check_collected_metric('interfacestats'):
-                    for vnic in self._inspect_vnics(domain):
+                    _interfacestats = self._inspect_vnics(domain)
+                    self._log_inspection(_interfacestats)
+                    for vnic in _interfacestats:
                         result['interfacestats_' + vnic[0].name] = vnic[1]
                 # Get disk metrics/disk.
                 if self._check_collected_metric('diskstats'):
-                    for disk in self._inspect_disks(domain):
+                    _diskstats = self._inspect_disks(domain)
+                    self._log_inspection(_diskstats)
+                    for disk in _diskstats:
                         result['diskstats_' + disk[0].device] = disk[1]
                 # Get disk info metrics/disk.
                 if self._check_collected_metric('diskinfo'):
-                    for disk in self._inspect_disk_info(domain):
+                    _diskinfo = self._inspect_disk_info(domain)
+                    self._log_inspection(_diskinfo)
+                    for disk in _diskinfo:
                         result['diskinfo_' + disk[0].device] = disk[1]
                 # Get memory usage metrics.
                 if self._check_collected_metric('memoryusagestats'):
-                    result['memoryusagestats'] = self._inspect_memory_usage(
-                        domain)
+                    _memoryusagestats = self._inspect_memory_usage(domain)
+                    self._log_inspection(_memoryusagestats)
+                    result['memoryusagestats'] = _memoryusagestats
                 # Get memory resident metrics.
                 if self._check_collected_metric('memoryresidentstats'):
-                    result['memoryresidentstats'] = \
+                    _memoryresidentstats = \
                         self._inspect_memory_resident(domain)
+                    self._log_inspection(_memoryresidentstats)
+                    result['memoryresidentstats'] = _memoryresidentstats
 
             results[domain.UUIDString()] = result
         return results
@@ -127,13 +149,22 @@ class LibvirtInspector(object):
         else:
             LOG.exception('Unknow unit type!')
 
+    def _log_inspection(self, metric):
+        """Log inspect operation"""
+        msg = 'Collecting %(metric)s' % {'metric': metric}
+        LOG.info(msg)
+
     def _check_collected_metric(self, metric):
-        LOG.info('Collecting %s!' % metric)
         return utils.ini_file_loader()['metrics-' + metric] == 'True'
 
     def _inspect_state(self, domain):
         dom_info = domain.info()
-        return base.StateStats(state=dom_info[0])
+        # Get state from intefer to string.
+        state = state_mapper[dom_info[0]]
+        # Set global state.
+        global is_running
+        is_running = True if state == 'VIR_DOMAIN_RUNNING' else False
+        return base.StateStats(state=state)
 
     def _inspect_cpus(self, domain):
         try:
@@ -144,7 +175,6 @@ class LibvirtInspector(object):
                    'can not get info from libvirt: %(error)s') % {
                 'instance_uuid': domain.UUIDString(), 'error': e}
             LOG.error(msg)
-            return None
 
     def _inspect_vnics(self, domain):
         tree = etree.fromstring(domain.XMLDesc(0))
@@ -279,7 +309,6 @@ class LibvirtInspector(object):
                 'instance_uuid': domain.UUIDString(), 'error': e}
             LOG.error(msg)
             # raise base.NoDataException(msg)
-            return None
 
     def _inspect_disk_info(self, domain):
         tree = etree.fromstring(domain.XMLDesc(0))
@@ -310,4 +339,3 @@ class LibvirtInspector(object):
                    'can not get info from libvirt: %(error)s') % {
                 'instance_uuid': domain.UUIDString(), 'error': e}
             LOG.error(msg)
-            return None

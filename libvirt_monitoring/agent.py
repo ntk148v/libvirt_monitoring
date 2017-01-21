@@ -46,9 +46,7 @@ class LibvirtAgent(object):
                     continue
                 for f in metric_value._fields:
                     # Item key, example: cpustats.number[instance-000002ee]
-                    item_key = "{}.{}.{}[{}]" . format(
-                        self.config['zabbix_agent-hostname'],
-                        metric_key, f, vm)
+                    item_key = "{}.{}[{}]" . format(metric_key, f, vm)
                     item_name = "{} - {} - {}" . format(vm.title(),
                                                         metric_key.title(),
                                                         f.title())
