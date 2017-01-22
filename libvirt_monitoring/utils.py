@@ -30,5 +30,5 @@ def logging_config_loader(errorfile='/var/log/libvirt_agent_error.log',
                                         'infofile': infofile},
                               disable_existing_loggers=False)
     # Set root logger level depend on config.ini file
-    if init_file_loader()['default-debug'] == 'True':
+    if ini_file_loader()['default-debug'] == 'True':
         logging.root.setLevel(logging.DEBUG)
