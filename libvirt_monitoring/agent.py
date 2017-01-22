@@ -182,10 +182,10 @@ class LibvirtAgent(object):
         try:
             _metric = self._check_threshold_item(item)
             if _metric:
-                # Create item first, if it's not existed
-                self.create_item(item)
                 # Item value > Defined Threshold, send it to Zabbix Server
                 if abs(item.value) > int(self.config['thresholds-' + _metric]):
+                    # Create item first, if it's not existed
+                    self.create_item(item)
                     metrics = \
                         [ZabbixMetric(self.config['zabbix_agent-hostname'],
                                       item.key, item.value)]
