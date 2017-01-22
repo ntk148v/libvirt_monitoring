@@ -13,22 +13,27 @@ LOG = logging.getLogger(__name__)
 class LibvirtAgent(object):
 
     def __init__(self):
-        self.config = utils.ini_file_loader()
+        # Load config from config.ini file
+        self.config = utils.ini_file_loader()    
         self.inspector = inspector.LibvirtInspector()
+        # Config ZabbixSender and ZabbixAPI
         if self.config['zabbix_agent-use_config'] == 'True':
             self.zsender = ZabbixSender(use_config=True)
         else:
             self.zsender = ZabbixSender(
                 zabbix_server=self.config['zabbix_server-ip'],
                 zabbix_port=int(self.config['zabbix_server-port']))
+        LOG.debug('Init ZabbixSender object - {}' . format(self.zsender))
         self.zapi = ZabbixAPI(url=self.config['zabbix_server-url'],
                               user=self.config['zabbix_server-user'],
                               password=self.config['zabbix_server-password'])
+        LOG.debug('Init ZabbixAPI object - {}' . format(self.zapi))
 
     def run(self):
         """Run Agent forever.
         """
         while True:
+            LOG.debug('Starting agent, get and send metrics')
             self.get_and_send_metrics()
             time.sleep(60)
 
@@ -51,6 +56,7 @@ class LibvirtAgent(object):
                                                         metric_key.title(),
                                                         f.title())
                     item_value = getattr(metric_value, f)
+                    LOG.debug('Get item {} = {}' . format(item_key, item_value))
                     self.send_item(base.Item(key=item_key,
                                              name=item_name,
                                              value=item_value))
