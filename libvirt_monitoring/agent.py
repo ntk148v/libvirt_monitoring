@@ -186,6 +186,9 @@ class LibvirtAgent(object):
                 if abs(item.value) > int(self.config['thresholds-' + _metric]):
                     # Create item first, if it's not existed
                     self.create_item(item)
+                    LOG.info('Metric {} = {} > {}' . format(
+                        item.key, item.value,
+                        int(self.config['thresholds-' + _metric])))
                     metrics = \
                         [ZabbixMetric(self.config['zabbix_agent-hostname'],
                                       item.key, item.value)]
