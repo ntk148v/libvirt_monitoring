@@ -93,12 +93,12 @@ class LibvirtInspector(object):
                 'instance_uuid': domain.UUIDString()}
             LOG.info(msg)
             # Get domain state.
-            state = self._inspect_state(domain)
-            self._log_inspection(state)
-            result['statestats'] = state
+            statestats = self._inspect_state(domain)
+            self._log_inspection(statestats)
+            result['statestats'] = statestats
 
             # Only get metrics info of running domain.
-            if is_running:
+            if statestats.state == 'VIR_DOMAIN_RUNNING':
                 # Get cpu metrics.
                 if self._check_collected_metric('cpustats'):
                     _cpustats = self._inspect_cpus(domain)
@@ -161,9 +161,6 @@ class LibvirtInspector(object):
         dom_info = domain.info()
         # Get state from intefer to string.
         state = state_mapper[dom_info[0]]
-        # Set global state.
-        global is_running
-        is_running = True if state == 'VIR_DOMAIN_RUNNING' else False
         return base.StateStats(state=state)
 
     def _inspect_cpus(self, domain):
