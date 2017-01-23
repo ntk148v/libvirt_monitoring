@@ -200,7 +200,7 @@ class LibvirtInspector(object):
                 dom_stats_1 = domain.interfaceStats(name)
                 time.sleep(1)
                 dom_stats_2 = domain.interfaceStats(name)
-                # Calculate transmitted/received megabits/second.
+                # Calculate transmitted/received megabit/second.
                 tx_megabit_ps = self._cal_metric_ps(dom_stats_2[4],
                                                     dom_stats_1[4],
                                                     unit='Mb/s')

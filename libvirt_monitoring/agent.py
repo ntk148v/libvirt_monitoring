@@ -44,10 +44,10 @@ class LibvirtAgent(object):
         all_metrics = self.inspector.get_vm_metrics()
         for vm, vm_metrics in all_metrics.items():
             for metric_key, metric_value in vm_metrics.items():
-                if not metric_value:
-                    msg = ('Failed when get %(metric)s' %
-                           {'metric': metric_key})
-                    LOG.error(msg)
+                # if not metric_value:
+                #     msg = ('Failed when get %(metric)s' %
+                #            {'metric': metric_key})
+                #     LOG.error(msg)
                 for f in metric_value._fields:
                     # Item key, example: cpustats.number[instance-000002ee]
                     item_key = "{}.{}[{}]" . format(metric_key, f, vm)
@@ -55,7 +55,7 @@ class LibvirtAgent(object):
                                                         metric_key.title(),
                                                         f.title())
                     item_value = getattr(metric_value, f)
-                    LOG.debug('Get item {} = {}' . format(
+                    LOG.info('Get item {} = {}' . format(
                         item_key, item_value))
                     self.send_item(base.Item(key=item_key,
                                              name=item_name,
@@ -161,8 +161,8 @@ class LibvirtAgent(object):
         threshold_types = [
             'read_requests_ps',
             'write_requests_ps',
-            'tx_megabits_ps',
-            'rx_megabits_ps',
+            'tx_megabit_ps',
+            'rx_megabit_ps',
         ]
 
         for t in threshold_types:
