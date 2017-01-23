@@ -56,7 +56,7 @@ class LibvirtAgent(object):
                                                             metric_key.title(),
                                                             f.title())
                         item_value = getattr(metric_value, f)
-                        LOG.info('Get item {} = {}' . format(
+                        LOG.debug('Get item {} = {}' . format(
                             item_key, item_value))
                         self.send_item(base.Item(key=item_key,
                                                  name=item_name,
@@ -186,7 +186,7 @@ class LibvirtAgent(object):
                 if abs(item.value) > int(self.config['thresholds-' + _metric]):
                     # Create item first, if it's not existed
                     self.create_item(item)
-                    LOG.info('Metric ({} = {}) > {}' . format(
+                    LOG.debug('Metric ({} = {}) > {}' . format(
                         item.key, item.value,
                         int(self.config['thresholds-' + _metric])))
                     metrics = \
@@ -198,7 +198,7 @@ class LibvirtAgent(object):
                     # Create trigger for this item.
                     self.create_trigger(item)
                 else:
-                    LOG.info('Metric ({} = {}) <= {}' . format(
+                    LOG.debug('Metric ({} = {}) <= {}' . format(
                         item.key, item.value,
                         int(self.config['thresholds-' + _metric])))
         except Exception as e:
