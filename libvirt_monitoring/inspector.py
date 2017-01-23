@@ -89,7 +89,7 @@ class LibvirtInspector(object):
         results = {}
         for domain in all_domains:
             result = {}
-            msg = 'Inspect metrics of %(instance_uuid)s' % {
+            msg = '### Inspect metrics of %(instance_uuid)s' % {
                 'instance_uuid': domain.UUIDString()}
             LOG.info(msg)
             # Get domain state.

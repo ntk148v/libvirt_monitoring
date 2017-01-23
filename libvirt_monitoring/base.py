@@ -42,13 +42,13 @@ Interface = collections.namedtuple('Interface', ['name', 'mac',
 
 # Named tuple representing vNIC statistics.
 #
-# tx_megabit_ps: number of transmitted megabits per second
-# rx_megabit_ps: number of received megabits per second
+# tx_megabits_ps: number of transmitted megabits per second
+# rx_megabits_ps: number of received megabits per second
 # tx_packets_ps: number of transmitted packets per second
 # rx_packets_ps: number of received packets per second
 #
 InterfaceStats = collections.namedtuple('InterfaceStats',
-                                        ['tx_megabit_ps', 'rx_megabit_ps',
+                                        ['tx_megabits_ps', 'rx_megabits_ps',
                                          'tx_packets_ps', 'rx_packets_ps'])
 
 # Named tuple representing disks.

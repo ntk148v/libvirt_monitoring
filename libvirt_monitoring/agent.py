@@ -48,19 +48,18 @@ class LibvirtAgent(object):
                     msg = ('Failed when get %(metric)s' %
                            {'metric': metric_key})
                     LOG.error(msg)
-                else:
-                    for f in metric_value._fields:
-                        # Item key, example: cpustats.number[instance-000002ee]
-                        item_key = "{}.{}[{}]" . format(metric_key, f, vm)
-                        item_name = "{} - {} - {}" . format(vm.title(),
-                                                            metric_key.title(),
-                                                            f.title())
-                        item_value = getattr(metric_value, f)
-                        LOG.debug('Get item {} = {}' . format(
-                            item_key, item_value))
-                        self.send_item(base.Item(key=item_key,
-                                                 name=item_name,
-                                                 value=item_value))
+                for f in metric_value._fields:
+                    # Item key, example: cpustats.number[instance-000002ee]
+                    item_key = "{}.{}[{}]" . format(metric_key, f, vm)
+                    item_name = "{} - {} - {}" . format(vm.title(),
+                                                        metric_key.title(),
+                                                        f.title())
+                    item_value = getattr(metric_value, f)
+                    LOG.debug('Get item {} = {}' . format(
+                        item_key, item_value))
+                    self.send_item(base.Item(key=item_key,
+                                             name=item_name,
+                                             value=item_value))
 
     def get_agent_hostid(self):
         """Get agent hostid.
