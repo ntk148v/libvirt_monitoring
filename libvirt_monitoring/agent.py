@@ -146,7 +146,7 @@ class LibvirtAgent(object):
                     'name': item.name,
                     'key_': item.key,
                     'hostid': _hostid,
-                    'value_type': 3,
+                    'value_type': 0,
                     'type': 2,
                 }
 
