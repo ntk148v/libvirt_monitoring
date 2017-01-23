@@ -106,20 +106,20 @@ class LibvirtInspector(object):
                     result['cpustats'] = _cpustats
                 # Get network metrics/interface.
                 if self._check_collected_metric('interfacestats'):
-                    _interfacestats = self._inspect_vnics(domain)
-                    self._log_inspection(list(_interfacestats))
+                    _interfacestats = list(self._inspect_vnics(domain))
+                    self._log_inspection(_interfacestats)
                     for vnic in _interfacestats:
                         result['interfacestats_' + vnic[0].name] = vnic[1]
                 # Get disk metrics/disk.
                 if self._check_collected_metric('diskstats'):
-                    _diskstats = self._inspect_disks(domain)
-                    self._log_inspection(list(_diskstats))
+                    _diskstats = list(self._inspect_disks(domain))
+                    self._log_inspection(_diskstats)
                     for disk in _diskstats:
                         result['diskstats_' + disk[0].device] = disk[1]
                 # Get disk info metrics/disk.
                 if self._check_collected_metric('diskinfo'):
-                    _diskinfo = self._inspect_disk_info(domain)
-                    self._log_inspection(list(_diskinfo))
+                    _diskinfo = list(self._inspect_disk_info(domain))
+                    self._log_inspection(_diskinfo)
                     for disk in _diskinfo:
                         result['diskinfo_' + disk[0].device] = disk[1]
                 # Get memory usage metrics.
@@ -134,7 +134,6 @@ class LibvirtInspector(object):
                     self._log_inspection(_memoryresidentstats)
                     result['memoryresidentstats'] = _memoryresidentstats
 
-            LOG.info(result)
             results[domain.UUIDString()] = result
         return results
 
