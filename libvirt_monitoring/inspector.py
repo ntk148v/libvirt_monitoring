@@ -134,6 +134,7 @@ class LibvirtInspector(object):
                     self._log_inspection(_memoryresidentstats)
                     result['memoryresidentstats'] = _memoryresidentstats
 
+            LOG.info(result)
             results[domain.UUIDString()] = result
         return results
 
