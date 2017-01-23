@@ -169,8 +169,7 @@ class LibvirtAgent(object):
         for t in threshold_types:
             if t in item.key:
                 return t
-            else:
-                return None
+        return None
 
     def send_item(self, item):
         """Send item to Zabbix Server.
