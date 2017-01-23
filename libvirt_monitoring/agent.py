@@ -186,7 +186,7 @@ class LibvirtAgent(object):
                 if abs(item.value) > int(self.config['thresholds-' + _metric]):
                     # Create item first, if it's not existed
                     self.create_item(item)
-                    LOG.info('Metric {} = {} > {}' . format(
+                    LOG.info('Metric ({} = {}) > {}' . format(
                         item.key, item.value,
                         int(self.config['thresholds-' + _metric])))
                     metrics = \
@@ -197,6 +197,10 @@ class LibvirtAgent(object):
                                                             result))
                     # Create trigger for this item.
                     self.create_trigger(item)
+                else:
+                    LOG.info('Metric ({} = {}) <= {}' . format(
+                        item.key, item.value,
+                        int(self.config['thresholds-' + _metric])))
         except Exception as e:
             LOG.error(
                 'Error when send metric to Zabbix Server - {}' . format(e))
