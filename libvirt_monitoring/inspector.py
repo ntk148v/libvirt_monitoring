@@ -6,6 +6,7 @@ from oslo_config import cfg
 from oslo_utils import units
 
 from libvirt_monitoring import base
+from libvirt_monitoring import settings
 from libvirt_monitoring import utils
 
 libvirt = None
@@ -22,17 +23,6 @@ OPTS = [
                help='Override the default libvirt URI '
                     '(which is dependent on libvirt_type).'),
 ]
-
-state_mapper = {
-    0: 'VIR_DOMAIN_NONE',
-    1: 'VIR_DOMAIN_RUNNING',
-    2: 'VIR_DOMAIN_BLOCKED',
-    3: 'VIR_DOMAIN_PAUSED',
-    4: 'VIR_DOMAIN_SHUTDOWN',
-    5: 'VIR_DOMAIN_SHUTOFF',
-    6: 'VIR_DOMAIN_CRASHED',
-    7: 'VIR_DOMAIN_PMSUSPENDED'
-}
 
 CONF = cfg.CONF
 CONF.register_opts(OPTS)
@@ -160,7 +150,7 @@ class LibvirtInspector(object):
     def _inspect_state(self, domain):
         dom_info = domain.info()
         # Get state from intefer to string.
-        state = state_mapper[dom_info[0]]
+        state = settings.STATE_MAPPER[dom_info[0]]
         return base.StateStats(state=state)
 
     def _inspect_cpus(self, domain):
