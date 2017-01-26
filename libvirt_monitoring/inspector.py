@@ -232,7 +232,6 @@ class LibvirtInspector(object):
                 # block_latency_stats_1 = domain.blockStatsFlags(device)
                 time.sleep(1)
                 block_stats_2 = domain.blockStats(device)
-                block_latency_stats_2 = domain.blockStatsFlags(device)
                 # Calculate read/write operations/s.
                 read_requests_ps = self._cal_metric_ps(block_stats_2[0],
                                                        block_stats_1[0],
@@ -247,17 +246,16 @@ class LibvirtInspector(object):
                 write_megabytes_ps = self._cal_metric_ps(block_stats_2[3],
                                                          block_stats_1[3],
                                                          unit='MB/s')
-                # Calculate read/write total times in ms.
-                read_total_times = block_latency_stats_2[
-                    'rd_total_times'] / 1E6
-                write_total_times = block_latency_stats_2[
-                    'wr_total_times'] / 1E6
+                # Calculate read_await and write_await.
+                iostat = base.IOStat()
+                r_await = iostat.get_specific_diskstat(device)['r_await']
+                w_await = iostat.get_specific_diskstat(device)['w_await']
                 stats = base.DiskStats(read_requests_ps=read_requests_ps,
                                        write_requests_ps=write_requests_ps,
                                        read_megabytes_ps=read_megabytes_ps,
                                        write_megabytes_ps=write_megabytes_ps,
-                                       read_total_times=read_total_times,
-                                       write_total_times=write_total_times,
+                                       r_await=r_await,
+                                       w_await=w_await,
                                        errors=block_stats_2[4])
             except libvirt.libvirtError as e:
                 msg = ('Failed to inspect %(device)s stats of '
