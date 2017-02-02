@@ -159,12 +159,11 @@ class LibvirtAgent(object):
         """Check threshold for specific given item.
         """
         # Specific metrics.
-        threshold_types = [
-            'read_requests_ps',
-            'write_requests_ps',
-            'tx_megabit_ps',
-            'rx_megabit_ps',
-        ]
+        threshold_types = []
+        # Grep metric with threshold defined.
+        for config in self.config.keys():
+            if 'thresholds-' in config:
+                threshold_types.append(config.replace('thresholds-', ''))
 
         for t in threshold_types:
             if t in item.key:
