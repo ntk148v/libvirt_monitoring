@@ -163,10 +163,12 @@ class LibvirtAgent(object):
         # Grep metric with threshold defined.
         for config in self.config.keys():
             if 'thresholds-' in config:
-                threshold_types.append(config.replace('thresholds-', ''))
+                threshold_types.append(config)
 
         for t in threshold_types:
-            if t in item.key:
+            _temp = t.replace('threshold-', '')
+            if _temp in item.key:
+                del _temp
                 return t
         return None
 
@@ -181,13 +183,12 @@ class LibvirtAgent(object):
             _metric = self._check_threshold_item(item)
             if _metric:
                 # Item value > Defined Threshold, send it to Zabbix Server
-                if abs(item.value) > float(self.config['thresholds-' +
-                                                       _metric]):
+                if abs(item.value) > float(self.config[_metric]):
                     # Create item first, if it's not existed
                     self.create_item(item)
                     LOG.debug('Metric ({} = {}) > {}' . format(
                         item.key, item.value,
-                        int(self.config['thresholds-' + _metric])))
+                        int(self.config[_metric])))
                     metrics = \
                         [ZabbixMetric(self.config['zabbix_agent-hostname'],
                                       item.key, item.value)]
@@ -199,7 +200,7 @@ class LibvirtAgent(object):
                 else:
                     LOG.debug('Metric ({} = {}) <= {}' . format(
                         item.key, item.value,
-                        int(self.config['thresholds-' + _metric])))
+                        int(self.config[_metric])))
         except Exception as e:
             LOG.error(
                 'Error when send metric to Zabbix Server - {}' . format(e))
