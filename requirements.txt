@@ -1,3 +1,2 @@
 oslo.config
 oslo.utils
-py-zabbix
