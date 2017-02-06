@@ -37,10 +37,13 @@ class ZabbixAPIObjectClass(object):
             if args and kwargs:
                 raise TypeError('Found both args and kwargs')
 
+            method = '{0}.{1}'.format(self.name, attr)
+            LOG.debug('Call %s method', method)
             return self.parent.do_request(
-                '{0}.{1}'.format(self.name, attr),
+                method,
                 args or kwargs
             )['result']
+
         return fn
 
 
@@ -69,7 +72,7 @@ class ZabbixAPI(object):
         :param password(str): Password used to login into Zabbix.
         """
         self.auth = self.user.login(user=user, password=password)
-        LOG.debug("ZabbixAPI.login(%s, %s)", user, password)
+        LOG.debug('ZabbixAPI.login(%s, %s)', user, password)
 
     def __getattr__(self, attr):
         """Dynamically create an object class (ie: host)"""
@@ -100,7 +103,7 @@ class ZabbixAPI(object):
         }
 
         # apiinfo.version and user.login doesn't require auth token
-        if self.auth and (method not in ('apiinfo.version', 'user.login')):
+        if self.auth and method != 'apiinfo.version':
             request_json['auth'] = self.auth
 
         LOG.debug("Sending: %s", json.dumps(request_json,
