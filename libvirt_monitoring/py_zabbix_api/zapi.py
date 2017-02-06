@@ -71,8 +71,10 @@ class ZabbixAPI(object):
         :param user(str): Username used to login into Zabbix.
         :param password(str): Password used to login into Zabbix.
         """
-        self.auth = self.user.login(user=user, password=password)
         LOG.debug('ZabbixAPI.login(%s, %s)', user, password)
+        self.auth = None
+
+        self.auth = self.user.login(user=user, password=password)
 
     def __getattr__(self, attr):
         """Dynamically create an object class (ie: host)"""
