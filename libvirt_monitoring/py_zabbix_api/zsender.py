@@ -1,6 +1,7 @@
 """A copy of Py-Zabbix Sender (link bellow).
 
 https://github.com/blacked/py-zabbix/blob/master/pyzabbix/sender.py
+https://myllynen.fedorapeople.org/pmrep.py
 """
 from decimal import Decimal
 import json
@@ -278,7 +279,9 @@ class ZabbixSender(object):
         response_header = self._receive(connection, 13)
         LOG.debug('Response header: %s', response_header)
 
-        if (not response_header.startswith(b'ZBXD\x01') or
+        # if (not response_header.startswith(b'ZBXD\x01') or
+        #         len(response_header) != 13):
+        if (not bytes.decode(response_header).startswith('ZBXD\1') or
                 len(response_header) != 13):
             LOG.debug('Zabbix return not valid response.')
             result = False
