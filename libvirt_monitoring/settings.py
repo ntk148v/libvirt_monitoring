@@ -21,3 +21,11 @@ STATE_MAPPER = {
     6: 'VIR_DOMAIN_CRASHED',
     7: 'VIR_DOMAIN_PMSUSPENDED'
 }
+
+# Binary unit constants.
+UNITS = {
+    'Ki': 1024,  # Binary kilo unit
+    'Mi': 1024 ** 2,  # Binary mega unit
+    'Gi': 1024 ** 3,  # Binary giga unit
+    'Ti': 1024 ** 4,  # Binary tera unit
+}

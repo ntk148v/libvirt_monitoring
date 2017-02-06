@@ -3,7 +3,6 @@ import time
 
 from lxml import etree
 from oslo_config import cfg
-from oslo_utils import units
 
 from libvirt_monitoring import base
 from libvirt_monitoring import settings
@@ -276,7 +275,7 @@ class LibvirtInspector(object):
                 memory_used = (memory_stats.get('available') -
                                memory_stats.get('unused'))
                 # Stat provided from libvirt is in KB, converting it to MB.
-                memory_used = memory_used / units.Ki
+                memory_used = memory_used / settings.UNITS['Ki']
                 return base.MemoryUsageStats(usage=memory_used)
             else:
                 msg = ('Failed to inspect memory usage of instance '
@@ -317,7 +316,7 @@ class LibvirtInspector(object):
 
     def _inspect_memory_resident(self, domain, duration=None):
         try:
-            memory = domain.memoryStats()['rss'] / units.Ki
+            memory = domain.memoryStats()['rss'] / settings.UNITS['Ki']
             return base.MemoryResidentStats(resident=memory)
         except libvirt.libvirtError as e:
             msg = ('Failed to inspect memory resident of %(instance_uuid)s, '
