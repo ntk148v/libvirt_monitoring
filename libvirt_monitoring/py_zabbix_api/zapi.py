@@ -67,7 +67,7 @@ class ZabbixAPI(object):
         self.timeout = timeout
 
         self.id = 0
-        self.url = url
+        self.url = url + '/api_jsonrpc.php'
         self.auth = None
         self._login(user, password)
         LOG.debug('JSON-RPC Server Endpoint: %s', self.url)
