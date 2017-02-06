@@ -1,7 +1,6 @@
 """A copy of Py-Zabbix Sender (link bellow).
 
 https://github.com/blacked/py-zabbix/blob/master/pyzabbix/sender.py
-https://myllynen.fedorapeople.org/pmrep.py
 """
 from decimal import Decimal
 import json
@@ -279,9 +278,7 @@ class ZabbixSender(object):
         response_header = self._receive(connection, 13)
         LOG.debug('Response header: %s', response_header)
 
-        # if (not response_header.startswith(b'ZBXD\x01') or
-        #         len(response_header) != 13):
-        if (not bytes.decode(response_header).startswith('ZBXD\1') or
+        if (not response_header.startswith(b'ZBXD\x01') or
                 len(response_header) != 13):
             LOG.debug('Zabbix return not valid response.')
             result = False
@@ -290,6 +287,22 @@ class ZabbixSender(object):
             response_body = connection.recv(response_len)
             result = json.loads(response_body.decode('utf-8'))
             LOG.debug('Data received: %s', result)
+
+            # Get info from result.
+            #
+            # result = {u'info': u'processed: 1; failed: 0; total: 1;
+            # seconds spent: 0.000034', u'response': u'success'}
+            #
+            # info = {u'failed': u'0', u'total': u'1', u'processed': u'1',
+            # u'seconds spent': u'0.000034'}
+            #
+            info = []
+            for e in result['info'].split(';'):
+                info.append([_e.strip() for _e in e.split(':')])
+            info = dict(info)
+
+            if int(info['failed']) > 0:
+                LOG.error('### Failed when sending metric to server ###')
 
         try:
             connection.close()
