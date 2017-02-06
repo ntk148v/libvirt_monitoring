@@ -167,7 +167,7 @@ class LibvirtAgent(object):
                 threshold_types.append(config)
 
         for t in threshold_types:
-            _temp = t.replace('threshold-', '')
+            _temp = t.replace('thresholds-', '')
             if _temp in item.key:
                 del _temp
                 return t
