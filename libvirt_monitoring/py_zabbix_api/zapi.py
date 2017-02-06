@@ -41,7 +41,7 @@ class ZabbixAPIObjectClass(object):
                 '{0}.{1}'.format(self.name, attr),
                 args or kwargs
             )['result']
-    return fn
+        return fn
 
 
 class ZabbixAPI(object):
