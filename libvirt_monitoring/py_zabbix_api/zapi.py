@@ -57,6 +57,13 @@ class ZabbixAPI(object):
         else:
             self.session = requests.Session()
 
+        # Default headers for all requests
+        self.session.headers.update({
+            'Content-Type': 'application/json-rpc',
+            'User-Agent': 'python/py_zabbix_api',
+            'Cache-Control': 'no-cache'
+        })
+
         self.timeout = timeout
 
         self.id = 0
