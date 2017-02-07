@@ -32,7 +32,7 @@ setup(
                  'libvirt_monitoring'},
     entry_points={
         'console_scripts': [
-            'libvirt_monitoring=main:main'
+            'libvirt_monitoring=libvirt_monitoring.main:main'
         ]
     },
     include_package_data=True,
