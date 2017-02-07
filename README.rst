@@ -26,8 +26,8 @@ Components:
 
 * Daemon: execute Agent in background. 
 
-Using
---------
+Using (source)
+--------------
 
 * Clone this repo in server which already has Zabbix agent::
 
@@ -35,11 +35,22 @@ Using
 
 * Update configuration in config.ini and logging.ini (if you want it) files.
 
-* Run command::
+* Go to libvirt_monitoring and run command::
 
 	python main.py start|stop|restart
 
-* Check log at /var/log/libvirt_agent.log
+* Check log at /var/log/libvirt_agent_info.log and /var/log/libvirt_agent_error.log
+
+Using (distribution package)
+----------------------------
+
+* Get deb file::
+
+	wget https://raw.githubusercontent.com/ntk148v/libvirt_monitoring/master/libvirt_monitoring/python-libvirt-monitoring_1.2.0-1_all.debdist_packages/
+
+* Install with dpkg.
+
+* Config in /etc/libvirt_monitoring/config.ini
 
 Features
 --------
