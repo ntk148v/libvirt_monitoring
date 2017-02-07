@@ -10,7 +10,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'oslo.utils',
+    "oslo.config",
 ]
 
 test_requirements = [
@@ -35,6 +35,9 @@ setup(
             'libvirt_monitoring=libvirt_monitoring.main:main'
         ]
     },
+    data_files=[
+        ('/etc/libvirt_monitoring/', ['libvirt_monitoring/config.ini'])
+    ],
     include_package_data=True,
     install_requires=requirements,
     zip_safe=False,
@@ -51,6 +54,4 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
-    test_suite='tests',
-    tests_require=test_requirements
 )
