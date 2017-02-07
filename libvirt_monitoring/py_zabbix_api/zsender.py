@@ -302,7 +302,11 @@ class ZabbixSender(object):
             info = dict(info)
 
             if int(info['failed']) > 0:
-                LOG.error('### Failed when sending metric to server ###')
+                LOG.error(
+                    '### Failed when sending metric to server: %s ###', info)
+            if int(info['processed']) > 0:
+                LOG.info(
+                    '### Success when sending metric to server: %s ###', info)
 
         try:
             connection.close()
