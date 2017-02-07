@@ -1,12 +1,12 @@
 import logging
 import time
-from libvirt_monitoring.py_zabbix_api.zapi import ZabbixAPI
-from libvirt_monitoring.py_zabbix_api.zsender import ZabbixMetric
-from libvirt_monitoring.py_zabbix_api.zsender import ZabbixSender
 
 from libvirt_monitoring import base
 from libvirt_monitoring import inspector
 from libvirt_monitoring import utils
+from libvirt_monitoring.py_zabbix_api.zapi import ZabbixAPI
+from libvirt_monitoring.py_zabbix_api.zsender import ZabbixMetric
+from libvirt_monitoring.py_zabbix_api.zsender import ZabbixSender
 
 
 LOG = logging.getLogger(__name__)

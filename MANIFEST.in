@@ -5,4 +5,5 @@ include CONTRIBUTING.rst
 include HISTORY.rst
 include README.rst
 
+recursive-include libvirt_monitoring/py_zabbix_api *.py
 recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif

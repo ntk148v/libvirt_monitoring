@@ -1,7 +1,5 @@
-"""A copy with some litte changes of both
-Python Zabbix API libs (link bellow).
+# -*- coding: utf-8 -*-
 
-- Py-zabbix: https://github.com/blacked/py-zabbix
-- Pyzabbix: https://github.com/lukecyca/pyzabbix
-
-"""
+__author__ = """Kien Nguyen"""
+__email__ = 'ntk148v@gmail.com'
+__version__ = '1.2.0'
