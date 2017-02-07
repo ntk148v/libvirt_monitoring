@@ -4,6 +4,8 @@ import os
 # Current directory path
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
+ETC_PATH = '/etc/libvirt_monitoring'
+
 # Configuration file config.ini path
 CONF_PATH = DIR_PATH + '/config.ini'
 
