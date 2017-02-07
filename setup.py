@@ -10,8 +10,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'Click>=6.0',
-    # TODO: put package requirements here
+    'oslo.utils',
 ]
 
 test_requirements = [
@@ -20,8 +19,8 @@ test_requirements = [
 
 setup(
     name='libvirt_monitoring',
-    version='0.1.0',
-    description="Python Boilerplate contains all the boilerplate you need to create a Python package.",
+    version='1.2.0',
+    description="Libvirt Monitoring with Zabbix",
     long_description=readme + '\n\n' + history,
     author="Kien Nguyen",
     author_email='ntk148v@gmail.com',
@@ -33,7 +32,7 @@ setup(
                  'libvirt_monitoring'},
     entry_points={
         'console_scripts': [
-            'libvirt_monitoring=libvirt_monitoring.cli:main'
+            'libvirt_monitoring=main:main'
         ]
     },
     include_package_data=True,
