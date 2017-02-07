@@ -46,13 +46,13 @@ Using (source)
 Using (distribution package)
 ----------------------------
 
-* Get deb file::
-
-	wget https://raw.githubusercontent.com/ntk148v/libvirt_monitoring/master/libvirt_monitoring/python-libvirt-monitoring_1.2.0-1_all.debdist_packages/
+* Get deb file from here_::
 
 * Install with dpkg.
 
 * Config in /etc/libvirt_monitoring/config.ini
+
+.. _here: https://github.com/ntk148v/libvirt_monitoring/tree/master/dist_packages
 
 Features
 --------
