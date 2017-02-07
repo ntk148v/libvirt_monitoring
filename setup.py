@@ -37,7 +37,6 @@ setup(
     },
     data_files=[
         ('/etc/libvirt_monitoring/', ['libvirt_monitoring/config.ini']),
-        ('/etc/libvirt_monitoring/', ['libvirt_monitoring/logging.ini'])
     ],
     include_package_data=True,
     install_requires=requirements,
