@@ -1,10 +1,12 @@
 import logging
 import time
-from pyzabbix import ZabbixAPI, ZabbixMetric, ZabbixSender
 
 from libvirt_monitoring import base
 from libvirt_monitoring import inspector
 from libvirt_monitoring import utils
+from libvirt_monitoring.py_zabbix_api.zapi import ZabbixAPI
+from libvirt_monitoring.py_zabbix_api.zsender import ZabbixMetric
+from libvirt_monitoring.py_zabbix_api.zsender import ZabbixSender
 
 
 LOG = logging.getLogger(__name__)
@@ -13,17 +15,27 @@ LOG = logging.getLogger(__name__)
 class LibvirtAgent(object):
 
     def __init__(self):
+        # Load config from config.ini file
         self.config = utils.ini_file_loader()
         self.inspector = inspector.LibvirtInspector()
-        self.zsender = ZabbixSender(use_config=True)
+        # Config ZabbixSender and ZabbixAPI
+        if self.config['zabbix_agent-use_config'] == 'True':
+            self.zsender = ZabbixSender(use_config=True)
+        else:
+            self.zsender = ZabbixSender(
+                zabbix_server=self.config['zabbix_server-ip'],
+                zabbix_port=int(self.config['zabbix_server-port']))
+        LOG.debug('Init ZabbixSender object - {}' . format(self.zsender))
         self.zapi = ZabbixAPI(url=self.config['zabbix_server-url'],
                               user=self.config['zabbix_server-user'],
                               password=self.config['zabbix_server-password'])
+        LOG.debug('Init ZabbixAPI object - {}' . format(self.zapi))
 
     def run(self):
         """Run Agent forever.
         """
         while True:
+            LOG.debug('Starting agent, get and send metrics')
             self.get_and_send_metrics()
             time.sleep(60)
 
@@ -34,16 +46,23 @@ class LibvirtAgent(object):
         all_metrics = self.inspector.get_vm_metrics()
         for vm, vm_metrics in all_metrics.items():
             for metric_key, metric_value in vm_metrics.items():
-                for f in metric_value._fields:
-                    # Item key, example: cpustats.number[instance-000002ee]
-                    item_key = "{}.{}[{}]" . format(metric_key, f, vm)
-                    item_name = "{} - {} - {}" . format(vm.title(),
-                                                        metric_key.title(),
-                                                        f.title())
-                    item_value = getattr(metric_value, f)
-                    self.send_item(base.Item(key=item_key,
-                                             name=item_name,
-                                             value=item_value))
+                if not metric_value:
+                    msg = ('Failed when get %(metric)s' %
+                           {'metric': metric_key})
+                    LOG.error(msg)
+                else:
+                    for f in metric_value._fields:
+                        # Item key, example: cpustats.number[instance-000002ee]
+                        item_key = "{}.{}[{}]" . format(metric_key, f, vm)
+                        item_name = "{} - {} - {}" . format(vm.title(),
+                                                            metric_key.title(),
+                                                            f.title())
+                        item_value = getattr(metric_value, f)
+                        LOG.debug('Get item {} = {}' . format(
+                            item_key, item_value))
+                        self.send_item(base.Item(key=item_key,
+                                                 name=item_name,
+                                                 value=item_value))
 
     def get_agent_hostid(self):
         """Get agent hostid.
@@ -129,7 +148,7 @@ class LibvirtAgent(object):
                     'name': item.name,
                     'key_': item.key,
                     'hostid': _hostid,
-                    'value_type': 3,
+                    'value_type': 0,
                     'type': 2,
                 }
 
@@ -142,18 +161,18 @@ class LibvirtAgent(object):
         """Check threshold for specific given item.
         """
         # Specific metrics.
-        threshold_types = [
-            'read_requests',
-            'write_requests',
-            'transmitted_ps',
-            'received_ps',
-        ]
+        threshold_types = []
+        # Grep metric with threshold defined.
+        for config in self.config.keys():
+            if 'thresholds-' in config:
+                threshold_types.append(config)
 
         for t in threshold_types:
-            if t in item.key:
+            _temp = t.replace('thresholds-', '')
+            if _temp in item.key:
+                del _temp
                 return t
-            else:
-                return None
+        return None
 
     def send_item(self, item):
         """Send item to Zabbix Server.
@@ -165,10 +184,13 @@ class LibvirtAgent(object):
         try:
             _metric = self._check_threshold_item(item)
             if _metric:
-                # Create item first, if it's not existed
-                self.create_item(item)
                 # Item value > Defined Threshold, send it to Zabbix Server
-                if abs(item.value) > int(self.config['thresholds-' + _metric]):
+                if abs(item.value) > float(self.config[_metric]):
+                    # Create item first, if it's not existed
+                    self.create_item(item)
+                    LOG.debug('Metric ({} = {}) > {}' . format(
+                        item.key, item.value,
+                        int(self.config[_metric])))
                     metrics = \
                         [ZabbixMetric(self.config['zabbix_agent-hostname'],
                                       item.key, item.value)]
@@ -177,6 +199,10 @@ class LibvirtAgent(object):
                                                             result))
                     # Create trigger for this item.
                     self.create_trigger(item)
+                else:
+                    LOG.debug('Metric ({} = {}) <= {}' . format(
+                        item.key, item.value,
+                        int(self.config[_metric])))
         except Exception as e:
             LOG.error(
                 'Error when send metric to Zabbix Server - {}' . format(e))
