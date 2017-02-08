@@ -10,14 +10,23 @@ import logging
 import requests
 
 
-class _NullHandler(logging.Handler):
+try:
+    from logging import NullHandler
+except ImportError:
+    # Added in Python 2.7
+    class NullHandler(logging.Handler):
+        def handle(self, record):
+            pass
 
-    def emit(self, record):
-        pass
+        def emit(self, record):
+            pass
+
+        def createLock(self):
+            self.lock = None
 
 
 LOG = logging.getLogger(__name__)
-LOG.addHandler(_NullHandler())
+LOG.addHandler(NullHandler())
 
 
 class ZabbixAPIException(Exception):
