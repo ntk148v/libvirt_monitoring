@@ -7,10 +7,10 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 ETC_PATH = '/etc/libvirt_monitoring'
 
 # Configuration file config.ini path
-CONF_PATH = DIR_PATH + '/config.ini'
+CONF_PATH = ETC_PATH + '/config.ini'
 
 # Logging configuration file path
-LOG_CONF_PATH = DIR_PATH + '/logging.ini'
+LOG_CONF_PATH = ETC_PATH + '/logging.ini'
 
 # VM state mapper
 STATE_MAPPER = {
