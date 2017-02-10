@@ -46,11 +46,18 @@ Using (source)
 Using (distribution package)
 ----------------------------
 
-* Get deb file from dist_packages/::
+* Get deb file from here_::
 
-* Install with dpkg.
+* Install with dpkg/rpm depend on which operation was used.
 
-* Config in /etc/libvirt_monitoring/config.ini
+* Config in /etc/libvirt_monitoring/config.ini and /etc/libvirt_monitoring/logging.
+
+* Run with commandline::
+	
+	libvirt_monitoring start|restart|status
+ 
+
+.. _here: https://github.com/ntk148v/libvirt_monitoring/releases/
 
 Features
 --------
