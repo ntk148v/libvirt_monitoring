@@ -19,7 +19,7 @@ test_requirements = [
 
 setup(
     name='libvirt_monitoring',
-    version='1.2.0',
+    version='1.2.1',
     description="Libvirt Monitoring with Zabbix",
     long_description=readme + '\n\n' + history,
     author="Kien Nguyen",
