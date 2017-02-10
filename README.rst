@@ -48,11 +48,10 @@ Using (distribution package)
 
 * Get deb file from here_::
 
-* Install with dpkg.
+* Install with dpkg/rpm depend on which operation was used.
+* Config in /etc/libvirt_monitoring/config.ini and /etc/libvirt_monitoring/logging.
 
-* Config in /etc/libvirt_monitoring/config.ini
-
-.. _here: https://github.com/ntk148v/libvirt_monitoring/tree/master/dist_packages
+.. _here: https://github.com/ntk148v/libvirt_monitoring/releases/
 
 Features
 --------
