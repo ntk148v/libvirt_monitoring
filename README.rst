@@ -46,13 +46,11 @@ Using (source)
 Using (distribution package)
 ----------------------------
 
-* Get deb file from here_::
+* Get deb file from dist_packages/::
 
 * Install with dpkg.
 
 * Config in /etc/libvirt_monitoring/config.ini
-
-.. _here: https://github.com/ntk148v/libvirt_monitoring/tree/master/dist_packages
 
 Features
 --------
