@@ -67,14 +67,11 @@ Disk = collections.namedtuple('Disk', ['device'])
 # read_requests_ps: number of read operations per second
 # write_megabytes_ps: number of megabytes written per second
 # write_requests_ps: number of write operations per second
-# r_await: The average time (in milliseconds) for read requests
-# w_await: The average time (in milliseconds) for write requests
 # errors: number of errors
 #
 DiskStats = collections.namedtuple('DiskStats',
                                    ['read_megabytes_ps', 'read_requests_ps',
                                     'write_megabytes_ps', 'write_requests_ps',
-                                    'r_await', 'w_await',
                                     'errors'])
 
 # Named tuple representing disk Information.

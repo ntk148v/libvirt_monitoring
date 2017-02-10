@@ -245,16 +245,10 @@ class LibvirtInspector(object):
                 write_megabytes_ps = self._cal_metric_ps(block_stats_2[3],
                                                          block_stats_1[3],
                                                          unit='MB/s')
-                # Calculate read_await and write_await.
-                iostat = base.IOStat()
-                r_await = iostat.get_specific_diskstat(device)['r_await']
-                w_await = iostat.get_specific_diskstat(device)['w_await']
                 stats = base.DiskStats(read_requests_ps=read_requests_ps,
                                        write_requests_ps=write_requests_ps,
                                        read_megabytes_ps=read_megabytes_ps,
                                        write_megabytes_ps=write_megabytes_ps,
-                                       r_await=r_await,
-                                       w_await=w_await,
                                        errors=block_stats_2[4])
             except libvirt.libvirtError as e:
                 msg = ('Failed to inspect %(device)s stats of '
