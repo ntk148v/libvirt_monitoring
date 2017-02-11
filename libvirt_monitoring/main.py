@@ -29,6 +29,8 @@ def main():
             agent_daemon.stop()
         if 'restart' == sys.argv[1]:
             agent_daemon.restart()
+        if 'status' == sys.argv[1]:
+            agent_daemon.status()
         else:
             print('Unknow command')
             sys.exit(2)
